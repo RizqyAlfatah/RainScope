@@ -635,11 +635,14 @@
       min-width: 0;
       display: flex;
       align-items: stretch;
-      gap: 8px;
+      gap: 10px;
       overflow-x: auto;
       scroll-behavior: smooth;
       scroll-snap-type: x proximity;
-      padding: 2px;
+      padding: 7px;
+      border-radius: 20px;
+      background: #EEF4FD;
+      box-shadow: inset 0 1px 3px rgba(30, 58, 138, 0.05);
       cursor: grab;
       scrollbar-width: none;
       -ms-overflow-style: none;
@@ -658,17 +661,20 @@
     }
 
     .day-strip-item {
-      flex: 0 0 calc((100% - 48px) / 7);
-      min-width: 68px;
-      border-radius: 16px;
+      flex: 0 0 calc((100% - 60px) / 7);
+      min-width: 72px;
+      border-radius: 18px;
       padding: 10px 6px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      gap: 3px;
-      background: transparent;
-      border: 1px solid transparent;
+      gap: 4px;
+      background: #FFFFFF;
+      border: 1px solid rgba(203, 213, 225, 0.78);
+      box-shadow:
+        0 4px 12px -2px rgba(27, 43, 65, 0.06),
+        0 1px 3px rgba(27, 43, 65, 0.04);
       cursor: pointer;
       scroll-snap-align: center;
       transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
@@ -676,15 +682,21 @@
     }
 
     .day-strip-item:hover {
-      background: #F8FAFC;
-      border-color: rgba(226, 232, 240, 0.9);
+      background: #FFFFFF;
+      border-color: rgba(96, 165, 250, 0.65);
+      box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.12);
       transform: translateY(-2px);
     }
 
     .day-strip-item.active {
-      background: linear-gradient(180deg, #EFF6FF 0%, #E0F2FE 100%);
-      border-color: rgba(59, 130, 246, 0.28);
-      box-shadow: 0 6px 14px -4px rgba(37, 99, 235, 0.18);
+      background: linear-gradient(180deg, #60A5FA 0%, #3B82F6 60%, #2563EB 100%);
+      border-color: rgba(37, 99, 235, 0.85);
+      box-shadow: 0 10px 22px -4px rgba(37, 99, 235, 0.36);
+    }
+
+    .day-strip-item.active:hover {
+      background: linear-gradient(180deg, #60A5FA 0%, #3B82F6 60%, #2563EB 100%);
+      border-color: rgba(29, 78, 216, 0.9);
     }
 
     .day-strip-name {
@@ -695,7 +707,7 @@
     }
 
     .day-strip-item.active .day-strip-name {
-      color: var(--accent-blue);
+      color: #FFFFFF;
     }
 
     .day-strip-date {
@@ -704,6 +716,10 @@
       color: var(--text-light);
       line-height: 1.1;
       white-space: nowrap;
+    }
+
+    .day-strip-item.active .day-strip-date {
+      color: rgba(255, 255, 255, 0.88);
     }
 
     .day-strip-icon {
@@ -722,6 +738,22 @@
       filter: drop-shadow(0 3px 5px rgba(15, 23, 42, 0.08));
     }
 
+    .day-strip-item.active .day-strip-icon svg {
+      filter: drop-shadow(0 3px 6px rgba(15, 23, 42, 0.18));
+    }
+
+    .day-strip-item.active .day-strip-icon .ws-cloud {
+      fill: #FFFFFF;
+    }
+
+    .day-strip-item.active .day-strip-icon .ws-cloud-shadow {
+      fill: #E2E8F0;
+    }
+
+    .day-strip-item.active .day-strip-icon .ws-rain {
+      stroke: #BAE6FD;
+    }
+
     .day-strip-val {
       font-size: 12px;
       font-weight: 800;
@@ -731,7 +763,7 @@
     }
 
     .day-strip-item.active .day-strip-val {
-      color: var(--accent-blue);
+      color: #FFFFFF;
     }
 
     /* Visualization Card */
@@ -940,6 +972,45 @@
       background: rgba(37, 99, 235, 0.1) !important;
       font-weight: 700;
       color: var(--accent-blue);
+    }
+
+    .lecture-hydro-table tbody tr.daily-block-header td {
+      background: linear-gradient(90deg, #EFF6FF 0%, #F8FAFC 100%) !important;
+      color: #1E3A8A;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 12px 16px;
+      border-top: 2px solid #BFDBFE;
+      border-bottom: 1px solid #DBEAFE;
+      text-align: left;
+    }
+
+    .daily-block-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .daily-block-header-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 999px;
+      padding: 3px 10px;
+      white-space: nowrap;
+    }
+
+    .lecture-hydro-table tbody tr.daily-block-total td {
+      background: #F1F5F9 !important;
+      color: #0F172A;
+      font-weight: 800;
+      padding: 11px 16px;
+      border-top: 1.5px solid #94A3B8;
+      border-bottom: 12px solid #FFFFFF;
     }
 
     /* Footer persis di whiteboard foto 3 */
@@ -1481,10 +1552,17 @@
         gap: 6px;
       }
 
+      .daily-weather-strip-track {
+        gap: 8px;
+        padding: 6px;
+        border-radius: 18px;
+      }
+
       .day-strip-item {
         flex: 0 0 calc((100% - 32px) / 5);
         min-width: 60px;
         padding: 8px 4px;
+        border-radius: 16px;
       }
 
       .chart-canvas-wrapper {
@@ -1556,13 +1634,15 @@
 
       .daily-weather-strip-track {
         gap: 6px;
+        padding: 5px;
+        border-radius: 16px;
       }
 
       .day-strip-item {
         flex: 0 0 calc((100% - 18px) / 4);
         min-width: 58px;
         padding: 7px 3px;
-        border-radius: 12px;
+        border-radius: 14px;
       }
 
       .day-strip-name {
@@ -2096,10 +2176,11 @@
     let selectedPeriodPreset = '30days';
     let hyetoChartInstance = null;
     let currentTableData = [];         // Table rows currently shown (for export)
+    let currentTableSections = [];     // Per-day 24h sections (when tableSelectedScope === 'all_days_24h')
     let currentFilteredRecords = [];   // Hourly records matching the sidebar filter
     let currentPeriodLabel = '';
     let currentIsDaily = true;
-    let tableSelectedScope = 'peak';   // 'peak' | 'all_active' | 'YYYY-MM-DD'
+    let tableSelectedScope = 'peak';   // 'peak' | 'daily_summary' | 'all_days_24h' | 'all_active' | 'YYYY-MM-DD'
     let currentChartMeta = {
       isDaily: true,
       isAnnualMonthly: false,
@@ -2117,6 +2198,12 @@
     let stripSuppressClick = false;
     let stripProgrammaticUntil = 0;
     let stripScrollCommitTimer = null;
+
+    function formatDateFullIndo(dateStr) {
+      const dt = new Date(dateStr + 'T00:00:00');
+      if (Number.isNaN(dt.getTime())) return dateStr;
+      return `${DAY_FULL_ID[dt.getDay()]}, ${dt.getDate()} ${MONTH_FULL_ID[dt.getMonth()]} ${dt.getFullYear()}`;
+    }
 
     function getStripWeatherCondition(totalMm, maxIntensityMm) {
       if (totalMm < 0.1) {
@@ -2144,8 +2231,8 @@
           svg: `<svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
             <circle cx="24" cy="12.5" r="5.5" fill="#F59E0B"/>
             <circle cx="24" cy="12.5" r="4" fill="#FBBF24"/>
-            <path d="M10.5 26.5H25.2C27.8 26.5 29.8 24.6 29.8 22.1C29.8 19.7 28 17.8 25.6 17.7C24.8 14.3 21.8 11.8 18.2 11.8C14.1 11.8 10.8 15 10.7 19C8.2 19.3 6.2 21.3 6.2 23.9C6.2 25.4 7.7 26.5 10.5 26.5Z" fill="#CBD5E1"/>
-            <path d="M10.5 26H25C27.4 26 29.3 24.2 29.3 21.9C29.3 19.7 27.6 17.9 25.4 17.8C24.6 14.6 21.7 12.2 18.3 12.2C14.4 12.2 11.2 15.2 11.1 19C8.7 19.3 6.8 21.2 6.8 23.6C6.8 25 8.1 26 10.5 26Z" fill="#E2E8F0"/>
+            <path class="ws-cloud-shadow" d="M10.5 26.5H25.2C27.8 26.5 29.8 24.6 29.8 22.1C29.8 19.7 28 17.8 25.6 17.7C24.8 14.3 21.8 11.8 18.2 11.8C14.1 11.8 10.8 15 10.7 19C8.2 19.3 6.2 21.3 6.2 23.9C6.2 25.4 7.7 26.5 10.5 26.5Z" fill="#CBD5E1"/>
+            <path class="ws-cloud" d="M10.5 26H25C27.4 26 29.3 24.2 29.3 21.9C29.3 19.7 27.6 17.9 25.4 17.8C24.6 14.6 21.7 12.2 18.3 12.2C14.4 12.2 11.2 15.2 11.1 19C8.7 19.3 6.8 21.2 6.8 23.6C6.8 25 8.1 26 10.5 26Z" fill="#E2E8F0"/>
           </svg>`
         };
       }
@@ -2154,8 +2241,8 @@
           label: 'Hujan Ringan',
           svg: `<svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
             <circle cx="24" cy="11" r="4.8" fill="#FBBF24"/>
-            <path d="M10.5 23H25C27.5 23 29.5 21.1 29.5 18.7C29.5 16.4 27.8 14.6 25.5 14.5C24.7 11.3 21.8 9 18.3 9C14.3 9 11.1 12 11 15.8C8.6 16.1 6.7 18 6.7 20.4C6.7 21.9 8.1 23 10.5 23Z" fill="#93C5FD"/>
-            <path d="M12.5 26.5L11.3 29.8M18.5 26.5L17.3 29.8M24.5 26.5L23.3 29.8" stroke="#3B82F6" stroke-width="2.2" stroke-linecap="round"/>
+            <path class="ws-cloud" d="M10.5 23H25C27.5 23 29.5 21.1 29.5 18.7C29.5 16.4 27.8 14.6 25.5 14.5C24.7 11.3 21.8 9 18.3 9C14.3 9 11.1 12 11 15.8C8.6 16.1 6.7 18 6.7 20.4C6.7 21.9 8.1 23 10.5 23Z" fill="#93C5FD"/>
+            <path class="ws-rain" d="M12.5 26.5L11.3 29.8M18.5 26.5L17.3 29.8M24.5 26.5L23.3 29.8" stroke="#3B82F6" stroke-width="2.2" stroke-linecap="round"/>
           </svg>`
         };
       }
@@ -2163,17 +2250,17 @@
         return {
           label: 'Hujan Sedang',
           svg: `<svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
-            <path d="M10.2 22.8H25.4C28 22.8 30 20.9 30 18.4C30 16 28.2 14.1 25.8 14C25 10.6 22 8.2 18.3 8.2C14.2 8.2 10.9 11.3 10.8 15.3C8.2 15.6 6.2 17.6 6.2 20.2C6.2 21.7 7.6 22.8 10.2 22.8Z" fill="#60A5FA"/>
-            <path d="M11.5 26L9.8 30.8M17 26L15.3 30.8M22.5 26L20.8 30.8M27.2 26L25.8 29.8" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round"/>
+            <path class="ws-cloud" d="M10.2 22.8H25.4C28 22.8 30 20.9 30 18.4C30 16 28.2 14.1 25.8 14C25 10.6 22 8.2 18.3 8.2C14.2 8.2 10.9 11.3 10.8 15.3C8.2 15.6 6.2 17.6 6.2 20.2C6.2 21.7 7.6 22.8 10.2 22.8Z" fill="#60A5FA"/>
+            <path class="ws-rain" d="M11.5 26L9.8 30.8M17 26L15.3 30.8M22.5 26L20.8 30.8M27.2 26L25.8 29.8" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round"/>
           </svg>`
         };
       }
       return {
         label: 'Hujan Lebat / Badai',
         svg: `<svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
-          <path d="M10 21.8H25.6C28.2 21.8 30.2 19.9 30.2 17.4C30.2 15 28.4 13.1 26 13C25.2 9.6 22.1 7.2 18.4 7.2C14.3 7.2 11 10.3 10.9 14.3C8.3 14.6 6.3 16.6 6.3 19.2C6.3 20.7 7.7 21.8 10 21.8Z" fill="#1D4ED8"/>
+          <path class="ws-cloud" d="M10 21.8H25.6C28.2 21.8 30.2 19.9 30.2 17.4C30.2 15 28.4 13.1 26 13C25.2 9.6 22.1 7.2 18.4 7.2C14.3 7.2 11 10.3 10.9 14.3C8.3 14.6 6.3 16.6 6.3 19.2C6.3 20.7 7.7 21.8 10 21.8Z" fill="#1D4ED8"/>
           <path d="M19.2 19L15.6 25.6H18.9L17.4 31.2L22.5 24.1H19.1L20.8 19H19.2Z" fill="#FBBF24"/>
-          <path d="M11 25L9.6 29.4M25.5 25L24.1 29.4" stroke="#38BDF8" stroke-width="2.1" stroke-linecap="round"/>
+          <path class="ws-rain" d="M11 25L9.6 29.4M25.5 25L24.1 29.4" stroke="#38BDF8" stroke-width="2.1" stroke-linecap="round"/>
         </svg>`
       };
     }
@@ -2225,11 +2312,10 @@
         track.innerHTML = stripDates.map(d => {
           const dt = new Date(d.date + 'T00:00:00');
           const dayShort = DAY_SHORT_ID[dt.getDay()];
-          const dayFull = DAY_FULL_ID[dt.getDay()];
           const dateTag = `${dt.getDate()} ${MONTH_SHORT_ID[dt.getMonth()]}`;
           const cond = getStripWeatherCondition(d.total_rain, d.i_maks);
           const isActive = (d.date === activeDate);
-          const tooltip = `${dayFull}, ${dt.getDate()} ${MONTH_FULL_ID[dt.getMonth()]} ${dt.getFullYear()} • ${d.total_rain.toFixed(1)} mm (${cond.label} • I-maks ${d.i_maks.toFixed(2)} mm/jam)`;
+          const tooltip = `${formatDateFullIndo(d.date)} • ${d.total_rain.toFixed(1)} mm (${cond.label} • I-maks ${d.i_maks.toFixed(2)} mm/jam)`;
 
           return `
             <div class="day-strip-item ${isActive ? 'active' : ''}" role="button" tabindex="0" data-date="${d.date}" title="${tooltip}" onclick="selectDayFromStrip('${d.date}')">
@@ -3304,6 +3390,65 @@
       lucide.createIcons();
     }
 
+    /**
+     * Format single table row HTML cleanly for lecture hydrology tables.
+     */
+    function formatLectureRowHtml(row, intensityDecimals) {
+      const peakClass = row.isPeak ? 'peak-row' : '';
+      return `
+        <tr>
+          <td>${row.no}</td>
+          <td style="font-weight: 600;">${row.time}</td>
+          <td class="${peakClass}">${row.rain.toFixed(1).replace('.', ',')}</td>
+          <td>${row.duration.toFixed(1).replace('.', ',')}</td>
+          <td class="${peakClass}">${row.intensity.toFixed(intensityDecimals).replace('.', ',')}</td>
+        </tr>
+      `;
+    }
+
+    /**
+     * Build standard 24-hour hydrology rows (00-01 .. 23-00, Lamanya = 1,0 jam) for one date.
+     */
+    function buildDayHourlyRows(dayRecords) {
+      const hourlyMap = {};
+      (dayRecords || []).forEach(r => { hourlyMap[r.hour] = r.rain; });
+
+      let maxHourVal = 0;
+      let maxIdx = -1;
+      for (let h = 0; h < 24; h++) {
+        const val = hourlyMap[h] || 0.0;
+        if (val > maxHourVal) {
+          maxHourVal = val;
+          maxIdx = h;
+        }
+      }
+
+      const rows = [];
+      let totalRain = 0;
+      let totalDuration = 0;
+      let maxIntensity = 0;
+
+      for (let h = 0; h < 24; h++) {
+        const nextH = (h + 1) % 24;
+        const rainMm = hourlyMap[h] || 0.0;
+        const duration = 1.0; // Selalu 1,0 jam sesuai rumus intensitas per jam
+        const intensity = rainMm / duration;
+        rows.push({
+          no: h + 1,
+          time: `${String(h).padStart(2,'0')} - ${String(nextH).padStart(2,'0')}`,
+          rain: rainMm,
+          duration: duration,
+          intensity: intensity,
+          isPeak: (h === maxIdx && maxHourVal >= 0.05)
+        });
+        totalRain += rainMm;
+        totalDuration += duration;
+        if (intensity > maxIntensity) maxIntensity = intensity;
+      }
+
+      return { rows, totalRain, totalDuration, maxIntensity };
+    }
+
     function appendLectureTableRows(rowsList, intensityDecimals = 1) {
       const tbody = document.getElementById('lectureTableBody');
       let totalRain = 0;
@@ -3324,26 +3469,81 @@
           isPeak: Boolean(row.isPeak)
         });
 
-        const peakClass = row.isPeak ? 'peak-row' : '';
-        return `
-          <tr>
-            <td>${row.no}</td>
-            <td style="font-weight: 600;">${row.time}</td>
-            <td class="${peakClass}">${row.rain.toFixed(1).replace('.', ',')}</td>
-            <td>${row.duration.toFixed(1).replace('.', ',')}</td>
-            <td class="${peakClass}">${row.intensity.toFixed(intensityDecimals).replace('.', ',')}</td>
-          </tr>
-        `;
+        return formatLectureRowHtml(row, intensityDecimals);
       });
 
       tbody.innerHTML = htmlParts.join('');
       return { totalRain, totalDuration, maxIntensity };
     }
 
+    /**
+     * Render chronological per-date 24-hour breakdown sections with header and subtotal per date.
+     */
+    function renderAllDays24hSections(sortedDates, recordsByDate) {
+      const tbody = document.getElementById('lectureTableBody');
+      let grandRain = 0;
+      let grandDuration = 0;
+      let grandMaxI = 0;
+      const htmlParts = [];
+
+      sortedDates.forEach(dateStr => {
+        const day = buildDayHourlyRows(recordsByDate[dateStr] || []);
+        const fullDateLabel = formatDateFullIndo(dateStr);
+
+        currentTableSections.push({
+          date: dateStr,
+          title: `${dateStr} (${fullDateLabel})`,
+          rows: day.rows,
+          totalRain: day.totalRain,
+          totalDuration: day.totalDuration,
+          maxIntensity: day.maxIntensity
+        });
+
+        day.rows.forEach(r => {
+          currentTableData.push({
+            no: r.no,
+            time: r.time,
+            rain: r.rain,
+            duration: r.duration,
+            intensity: r.intensity,
+            isPeak: Boolean(r.isPeak)
+          });
+        });
+
+        htmlParts.push(`
+          <tr class="daily-block-header">
+            <td colspan="5">
+              <div class="daily-block-header-inner">
+                <span>📅 ${dateStr} • ${fullDateLabel}</span>
+                <span class="daily-block-header-badge">24 Jam • Total ${day.totalRain.toFixed(1).replace('.', ',')} mm</span>
+              </div>
+            </td>
+          </tr>
+        `);
+        day.rows.forEach(r => htmlParts.push(formatLectureRowHtml(r, 1)));
+        htmlParts.push(`
+          <tr class="daily-block-total">
+            <td colspan="2">TOTAL &amp; I-MAKS (${dateStr})</td>
+            <td>${day.totalRain.toFixed(1).replace('.', ',')} mm</td>
+            <td>${day.totalDuration.toFixed(1).replace('.', ',')} jam</td>
+            <td>${day.maxIntensity.toFixed(1).replace('.', ',')} mm/jam</td>
+          </tr>
+        `);
+
+        grandRain += day.totalRain;
+        grandDuration += day.totalDuration;
+        if (day.maxIntensity > grandMaxI) grandMaxI = day.maxIntensity;
+      });
+
+      tbody.innerHTML = htmlParts.join('');
+      return { totalRain: grandRain, totalDuration: grandDuration, maxIntensity: grandMaxI };
+    }
+
     function renderLectureTable(records, periodLabel, isDaily) {
       const tbody = document.getElementById('lectureTableBody');
       tbody.innerHTML = '';
       currentTableData = [];
+      currentTableSections = [];
 
       const selectorWrap = document.getElementById('tableDaySelectorWrap');
       const selectEl = document.getElementById('tableDaySelect');
@@ -3360,38 +3560,13 @@
         if (thIntensityEl) thIntensityEl.innerText = 'Intensitas (mm/jam)';
         subtitleEl.innerText = `Format Standar Kuliah Teknik Hidrologi (${periodLabel})`;
 
-        const hourlyMap = {};
-        records.forEach(r => hourlyMap[r.hour] = r.rain);
-
-        let maxHourVal = 0;
-        let maxIdx = -1;
-        for (let h = 0; h < 24; h++) {
-          const r = hourlyMap[h] || 0.0;
-          if (r > maxHourVal) {
-            maxHourVal = r;
-            maxIdx = h;
-          }
-        }
-
-        const rows = [];
-        for (let h = 0; h < 24; h++) {
-          const nextH = (h + 1) % 24;
-          const rainMm = hourlyMap[h] || 0.0;
-          const duration = 1.0; // Selalu 1,0 jam sesuai rumus intensitas per jam
-          rows.push({
-            no: h + 1,
-            time: `${String(h).padStart(2,'0')} - ${String(nextH).padStart(2,'0')}`,
-            rain: rainMm,
-            duration: duration,
-            intensity: rainMm / duration,
-            isPeak: (h === maxIdx && maxHourVal >= 0.05)
-          });
-        }
-        summaryTotals = appendLectureTableRows(rows, 1);
+        const day = buildDayHourlyRows(records);
+        summaryTotals = appendLectureTableRows(day.rows, 1);
       } else {
         selectorWrap.style.display = 'flex';
 
         const dailyStats = {};
+        const recordsByDate = {};
         let maxPeriodHourI = -1;
         let maxPeriodHourDate = '';
         let activeRainRecords = [];
@@ -3399,7 +3574,9 @@
         records.forEach(r => {
           if (!dailyStats[r.date]) {
             dailyStats[r.date] = { date: r.date, sum: 0, maxI: 0, hoursCount: 0 };
+            recordsByDate[r.date] = [];
           }
+          recordsByDate[r.date].push(r);
           dailyStats[r.date].sum += r.rain;
           dailyStats[r.date].hoursCount += 1;
           if (r.rain > dailyStats[r.date].maxI) {
@@ -3422,13 +3599,14 @@
 
         let optsHtml = `<option value="peak">⚡ Hari Puncak I-maks: ${maxPeriodHourDate} (${maxPeriodHourI.toFixed(1)} mm/jam)</option>`;
         optsHtml += `<option value="daily_summary">📆 Semua Tanggal (Rekap Harian: ${sortedChronoDates.length} hari)</option>`;
+        optsHtml += `<option value="all_days_24h">📑 Semua Tanggal • Detail 24 Jam (${sortedChronoDates.length} hari)</option>`;
         optsHtml += `<option value="all_active">📋 Semua Jam Hujan Aktif (${activeRainRecords.length} jam)</option>`;
         sortedRainDays.forEach(d => {
           optsHtml += `<option value="${d.date}">📅 ${d.date} (Total ${d.sum.toFixed(1)} mm • Maks ${d.maxI.toFixed(1)})</option>`;
         });
 
         selectEl.innerHTML = optsHtml;
-        if (['peak', 'daily_summary', 'all_active'].includes(tableSelectedScope) || dailyStats[tableSelectedScope]) {
+        if (['peak', 'daily_summary', 'all_days_24h', 'all_active'].includes(tableSelectedScope) || dailyStats[tableSelectedScope]) {
           selectEl.value = tableSelectedScope;
         } else {
           tableSelectedScope = 'peak';
@@ -3460,6 +3638,14 @@
             };
           });
           summaryTotals = appendLectureTableRows(rows, 2);
+        } else if (tableSelectedScope === 'all_days_24h') {
+          thTimeEl.innerText = 'Waktu (pukul)';
+          if (thIntensityEl) thIntensityEl.innerText = 'Intensitas (mm/jam)';
+          const rangeText = sortedChronoDates.length > 0
+            ? `${sortedChronoDates[0]} s.d. ${sortedChronoDates[sortedChronoDates.length - 1]} • `
+            : '';
+          subtitleEl.innerText = `Detail Perhitungan 24 Jam Per Tanggal (${rangeText}${periodLabel})`;
+          summaryTotals = renderAllDays24hSections(sortedChronoDates, recordsByDate);
         } else if (tableSelectedScope === 'all_active') {
           thTimeEl.innerText = 'Waktu (WIB)';
           if (thIntensityEl) thIntensityEl.innerText = 'Intensitas (mm/jam)';
@@ -3487,40 +3673,12 @@
         } else {
           // Hari Puncak atau Tanggal Spesifik (24 Jam, Lamanya = 1,0)
           const targetDate = (tableSelectedScope === 'peak') ? maxPeriodHourDate : tableSelectedScope;
-          const dayRecords = records.filter(r => r.date === targetDate);
-
           thTimeEl.innerText = 'Waktu (pukul)';
           if (thIntensityEl) thIntensityEl.innerText = 'Intensitas (mm/jam)';
           subtitleEl.innerText = `Perhitungan Intensitas Per Jam — Tanggal ${targetDate} (Periode: ${periodLabel})`;
 
-          const hourlyMap = {};
-          dayRecords.forEach(r => hourlyMap[r.hour] = r.rain);
-
-          let maxHourVal = 0;
-          let maxIdx = -1;
-          for (let h = 0; h < 24; h++) {
-            const r = hourlyMap[h] || 0.0;
-            if (r > maxHourVal) {
-              maxHourVal = r;
-              maxIdx = h;
-            }
-          }
-
-          const rows = [];
-          for (let h = 0; h < 24; h++) {
-            const nextH = (h + 1) % 24;
-            const rainMm = hourlyMap[h] || 0.0;
-            const duration = 1.0; // Selalu 1,0 jam
-            rows.push({
-              no: h + 1,
-              time: `${String(h).padStart(2,'0')} - ${String(nextH).padStart(2,'0')}`,
-              rain: rainMm,
-              duration: duration,
-              intensity: rainMm / duration,
-              isPeak: (h === maxIdx && maxHourVal >= 0.05)
-            });
-          }
-          summaryTotals = appendLectureTableRows(rows, 1);
+          const day = buildDayHourlyRows(recordsByDate[targetDate] || []);
+          summaryTotals = appendLectureTableRows(day.rows, 1);
         }
       }
 
@@ -3542,14 +3700,61 @@
       return selectedPeriodPreset || 'periode';
     }
 
+    function triggerBlobDownload(content, mimeType, filename) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
     function downloadCurrentCSV(fromSidebar = false) {
       const useFilteredHourly = (
         fromSidebar &&
         activeView === 'graph' &&
         !currentIsDaily &&
-        tableSelectedScope !== 'daily_summary' &&
+        !['daily_summary', 'all_days_24h'].includes(tableSelectedScope) &&
         currentFilteredRecords.length > 0
       );
+
+      const isAllDays24hExport = (
+        !useFilteredHourly &&
+        !currentIsDaily &&
+        tableSelectedScope === 'all_days_24h' &&
+        currentTableSections.length > 0
+      );
+
+      if (isAllDays24hExport) {
+        let csv = '';
+        let grandRain = 0;
+        let grandDuration = 0;
+        let grandMaxI = 0;
+
+        currentTableSections.forEach((sec, idx) => {
+          if (idx > 0) csv += '\n';
+          csv += `"TANGGAL: ${sec.title}",,,,\n`;
+          csv += "No,Waktu_WIB,Tinggi_Hujan_mm,Lamanya_jam,Intensitas_mm_jam\n";
+          sec.rows.forEach(r => {
+            csv += `${r.no},"${r.time}",${r.rain.toFixed(3)},${r.duration.toFixed(1)},${r.intensity.toFixed(3)}\n`;
+          });
+          csv += `"TOTAL & I-MAKS (${sec.date})",-,${sec.totalRain.toFixed(3)},${sec.totalDuration.toFixed(1)},${sec.maxIntensity.toFixed(3)}\n`;
+          grandRain += sec.totalRain;
+          grandDuration += sec.totalDuration;
+          if (sec.maxIntensity > grandMaxI) grandMaxI = sec.maxIntensity;
+        });
+
+        csv += `\n"TOTAL PERIODE (${currentTableSections.length} Hari)",-,${grandRain.toFixed(3)},${grandDuration.toFixed(1)},${grandMaxI.toFixed(3)}\n`;
+        triggerBlobDownload(
+          csv,
+          'text/csv;charset=utf-8;',
+          `detail_24jam_harian_semarang_${currentFilterMode}_${getExportFileTag()}.csv`
+        );
+        showToast('Unduhan Berhasil', 'Data CSV detail 24 jam per tanggal berhasil diunduh.', 'success');
+        return;
+      }
 
       let exportData = currentTableData;
       const isDailySummaryExport = !useFilteredHourly && !currentIsDaily && tableSelectedScope === 'daily_summary';
@@ -3589,21 +3794,19 @@
 
       csv += `TOTAL,-,${totalRain.toFixed(3)},${totalDuration.toFixed(1)},${maxI.toFixed(3)}\n`;
 
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
       const prefix = isDailySummaryExport ? 'rekap_harian_semarang' : 'tabel_hidrologi_semarang';
-      a.download = `${prefix}_${currentFilterMode}_${getExportFileTag()}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      triggerBlobDownload(
+        csv,
+        'text/csv;charset=utf-8;',
+        `${prefix}_${currentFilterMode}_${getExportFileTag()}.csv`
+      );
 
       showToast('Unduhan Berhasil', 'Data CSV sesuai filter berhasil diunduh.', 'success');
     }
 
     function downloadCurrentExcel() {
-      if (!currentTableData || currentTableData.length === 0) {
+      const isAllDays24hExport = (!currentIsDaily && tableSelectedScope === 'all_days_24h' && currentTableSections.length > 0);
+      if (!isAllDays24hExport && (!currentTableData || currentTableData.length === 0)) {
         showToast('Gagal', 'Tidak ada data untuk diunduh.', 'error');
         return;
       }
@@ -3616,7 +3819,75 @@
       let tableHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
       <head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Tabel Hidrologi Semarang</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
       <body>
-      <table border="1">
+      <table border="1">`;
+
+      if (isAllDays24hExport) {
+        let grandRain = 0;
+        let grandDuration = 0;
+        let grandMaxI = 0;
+
+        tableHtml += `<thead>
+          <tr style="background:#1E3A8A; color:#FFFFFF; font-weight:bold;">
+            <th colspan="5">DETAIL PERHITUNGAN INTENSITAS HUJAN PER HARI (24 JAM) — ${currentPeriodLabel || 'SEMUA TANGGAL'}</th>
+          </tr>
+        </thead><tbody>`;
+
+        currentTableSections.forEach((sec, idx) => {
+          if (idx > 0) {
+            tableHtml += `<tr><td colspan="5" style="height:10px; border:none;"></td></tr>`;
+          }
+          tableHtml += `<tr style="background:#DBEAFE; color:#1E3A8A; font-weight:bold;">
+            <td colspan="5">TANGGAL ${sec.title}</td>
+          </tr>
+          <tr style="background:#2563EB; color:#FFFFFF; font-weight:bold;">
+            <th>No.</th>
+            <th>Waktu (pukul)</th>
+            <th>Tinggi hujan (mm)</th>
+            <th>Lamanya (jam)</th>
+            <th>Intensitas (mm/jam)</th>
+          </tr>`;
+
+          sec.rows.forEach(r => {
+            const peakStyle = r.isPeak ? ' style="background:#EFF6FF; color:#1D4ED8; font-weight:bold;"' : '';
+            tableHtml += `<tr${peakStyle}>
+              <td>${r.no}</td>
+              <td>${r.time}</td>
+              <td>${r.rain.toFixed(1).replace('.', ',')}</td>
+              <td>${r.duration.toFixed(1).replace('.', ',')}</td>
+              <td>${r.intensity.toFixed(1).replace('.', ',')}</td>
+            </tr>`;
+          });
+
+          tableHtml += `<tr style="background:#F1F5F9; font-weight:bold;">
+            <td colspan="2">TOTAL &amp; I-MAKS (${sec.date})</td>
+            <td>${sec.totalRain.toFixed(1).replace('.', ',')}</td>
+            <td>${sec.totalDuration.toFixed(1).replace('.', ',')}</td>
+            <td>${sec.maxIntensity.toFixed(1).replace('.', ',')}</td>
+          </tr>`;
+
+          grandRain += sec.totalRain;
+          grandDuration += sec.totalDuration;
+          if (sec.maxIntensity > grandMaxI) grandMaxI = sec.maxIntensity;
+        });
+
+        tableHtml += `<tr><td colspan="5" style="height:10px; border:none;"></td></tr>
+        <tr style="background:#E2E8F0; color:#0F172A; font-weight:bold;">
+          <td colspan="2">TOTAL PERIODE (${currentTableSections.length} Hari) &amp; I-MAKS</td>
+          <td>${grandRain.toFixed(1).replace('.', ',')}</td>
+          <td>${grandDuration.toFixed(1).replace('.', ',')}</td>
+          <td>${grandMaxI.toFixed(1).replace('.', ',')}</td>
+        </tr></tbody></table></body></html>`;
+
+        triggerBlobDownload(
+          tableHtml,
+          'application/vnd.ms-excel;charset=utf-8;',
+          `detail_24jam_harian_semarang_${currentFilterMode}_${getExportFileTag()}.xls`
+        );
+        showToast('Unduhan Berhasil', 'Tabel Excel detail 24 jam per tanggal (.xls) berhasil diunduh.', 'success');
+        return;
+      }
+
+      tableHtml += `
         <thead>
           <tr style="background:#2563EB; color:#FFFFFF; font-weight:bold;">
             <th>No.</th>
@@ -3653,15 +3924,12 @@
       </tr>
       </tbody></table></body></html>`;
 
-      const blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
       const prefix = isDailySummary ? 'rekap_harian_semarang' : 'tabel_hidrologi_semarang';
-      a.download = `${prefix}_${currentFilterMode}_${getExportFileTag()}.xls`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      triggerBlobDownload(
+        tableHtml,
+        'application/vnd.ms-excel;charset=utf-8;',
+        `${prefix}_${currentFilterMode}_${getExportFileTag()}.xls`
+      );
 
       showToast('Unduhan Berhasil', 'Tabel hidrologi Excel (.xls) berhasil diunduh.', 'success');
     }
