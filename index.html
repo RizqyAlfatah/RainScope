@@ -1,0 +1,3232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RainScope - Semarang Climate & Weather Dashboard</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CDN Libraries: Chart.js & Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-canvas: #EEF3F8;
+      --card-bg: #FFFFFF;
+      --card-border: rgba(255, 255, 255, 0.9);
+      --text-main: #1E293B;
+      --text-muted: #64748B;
+      --text-light: #94A3B8;
+
+      --accent-blue: #2563EB;
+      --accent-blue-light: #38BDF8;
+      --accent-blue-glow: rgba(37, 99, 235, 0.22);
+      --accent-orange: #F59E0B;
+      --accent-teal: #06B6D4;
+      --accent-emerald: #10B981;
+      --accent-rose: #F43F5E;
+
+      --shadow-clay: 0 12px 28px -4px rgba(27, 43, 65, 0.06), 0 4px 12px -2px rgba(27, 43, 65, 0.03);
+      --shadow-clay-hover: 0 20px 36px -6px rgba(27, 43, 65, 0.1), 0 8px 16px -4px rgba(27, 43, 65, 0.05);
+      --shadow-island: 0 20px 40px -8px rgba(15, 23, 42, 0.18), 0 8px 16px -4px rgba(15, 23, 42, 0.08);
+      --shadow-pill: 0 6px 16px -2px rgba(37, 99, 235, 0.3);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --radius-pill: 9999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      background-image: 
+        radial-gradient(at 10% 15%, rgba(56, 189, 248, 0.09) 0px, transparent 40%),
+        radial-gradient(at 90% 85%, rgba(37, 99, 235, 0.07) 0px, transparent 45%),
+        radial-gradient(at 50% 50%, rgba(245, 158, 11, 0.03) 0px, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      position: relative;
+    }
+
+    /* Main Dashboard Shell */
+    .dashboard-container {
+      width: 100%;
+      max-width: 1480px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 24px 60px -12px rgba(27, 43, 65, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.85);
+      display: grid;
+      grid-template-columns: 80px 1fr 370px;
+      gap: 24px;
+      padding: 24px;
+      position: relative;
+    }
+
+    @media (max-width: 1200px) {
+      .dashboard-container {
+        grid-template-columns: 76px 1fr;
+        gap: 18px;
+        padding: 18px;
+      }
+      .right-sidebar {
+        grid-column: 2 / 3;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        align-items: stretch;
+      }
+      .weather-hero-card {
+        grid-column: 1 / 2;
+        grid-row: 1 / 4;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+    }
+
+    /* Common Card Claymorphism */
+    .clay-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-clay);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .clay-card:hover {
+      box-shadow: var(--shadow-clay-hover);
+    }
+
+    /* Micro-interactions: Button press effect */
+    button {
+      user-select: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    button:active {
+      transform: scale(0.96) !important;
+    }
+
+    /* ========================================================
+       1. LEFT SIDEBAR (ICON HIERARCHY SESUAI REVISI & FOTO 1)
+       ======================================================== */
+    .left-sidebar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 6px;
+      height: 100%;
+      position: relative;
+    }
+
+    .app-brand {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-light));
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 8px 20px -3px rgba(37, 99, 235, 0.38);
+      cursor: pointer;
+      transition: transform 0.25s ease;
+    }
+    .app-brand:hover {
+      transform: scale(1.08);
+    }
+
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 18px;
+      background: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .nav-btn:hover {
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    /* Active pill indicator dot below the icon (Persis Foto 1) */
+    .nav-btn.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: var(--shadow-pill);
+    }
+    .nav-btn.active::after {
+      content: '';
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #ffffff;
+      bottom: 6px;
+    }
+
+    .sidebar-top-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .bottom-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* ========================================================
+       FLOATING DYNAMIC ISLAND: FILTER KONFIGURASI
+       ======================================================== */
+    .filter-island {
+      position: fixed;
+      top: 100px;
+      left: 112px;
+      width: 360px;
+      max-width: calc(100vw - 24px);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: var(--shadow-island);
+      padding: 20px;
+      z-index: 200;
+      opacity: 0;
+      transform: translateX(-15px) scale(0.96);
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .filter-island.show {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .island-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .island-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-island-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #F1F5F9;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .btn-island-close:hover {
+      background: #E2E8F0;
+      color: var(--text-main);
+    }
+
+    .island-mode-tabs {
+      background: #F1F5F9;
+      padding: 4px;
+      border-radius: var(--radius-pill);
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .island-tab-btn {
+      flex: 1;
+      padding: 7px 8px;
+      border-radius: var(--radius-pill);
+      font-size: 11.5px;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .island-tab-btn.active {
+      background: #FFFFFF;
+      color: var(--accent-blue);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .island-subview {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .island-subview.active {
+      display: flex;
+    }
+
+    .island-date-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .island-date-input {
+      flex: 1;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .btn-island-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .btn-island-icon:hover {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    .btn-island-peak {
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(37, 99, 235, 0.08);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      color: var(--accent-blue);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .btn-island-peak:hover {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    /* Month Checklist in Island */
+    .island-month-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .island-month-grid::-webkit-scrollbar {
+      width: 4px;
+    }
+    .island-month-grid::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 999px;
+    }
+
+    .month-pill-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: var(--radius-pill);
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .month-pill-item input {
+      accent-color: var(--accent-blue);
+    }
+    .month-pill-item.checked {
+      background: rgba(37, 99, 235, 0.1);
+      border-color: rgba(37, 99, 235, 0.3);
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    .island-actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-mini-link {
+      background: transparent;
+      border: none;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    /* Presets list */
+    .island-preset-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .btn-island-preset {
+      width: 100%;
+      text-align: left;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .btn-island-preset:hover, .btn-island-preset.active {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
+
+    /* Chart display toggle inside island */
+    .island-display-toggle {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #E2E8F0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .island-display-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .display-pill-wrapper {
+      background: #F1F5F9;
+      padding: 3px;
+      border-radius: var(--radius-pill);
+      display: flex;
+      gap: 3px;
+    }
+    .display-pill-btn {
+      flex: 1;
+      padding: 6px 4px;
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+    }
+    .display-pill-btn.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
+
+    /* ========================================================
+       2. MIDDLE CONTENT AREA
+       ======================================================== */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      min-width: 0;
+    }
+
+    /* Top Header: Bersih & Minimalis (Tanpa Pill Status) */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header-brand-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mobile-brand-logo {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-light));
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 6px 14px -2px rgba(37, 99, 235, 0.35);
+      flex-shrink: 0;
+    }
+
+    .location-info {
+      min-width: 0;
+    }
+
+    .location-info h1 {
+      font-size: clamp(20px, 2.4vw, 26px);
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .location-info .subtitle {
+      font-size: clamp(11.5px, 1.4vw, 13.5px);
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 500;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      line-height: 1.4;
+      flex-wrap: wrap;
+    }
+
+    .period-active-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      background: #FFFFFF;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      box-shadow: 0 4px 12px rgba(27, 43, 65, 0.04);
+      font-size: clamp(11.5px, 1.3vw, 12.5px);
+      font-weight: 700;
+      color: var(--accent-blue);
+      max-width: 100%;
+      line-height: 1.3;
+    }
+
+    /* Dynamic View Transitions (Fade & Slide) */
+    .view-container {
+      display: none;
+      animation: fadeInSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .view-container.active {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    @keyframes fadeInSlide {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Visualization Card */
+    .visualization-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .chart-title-group h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .chart-title-group p {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .chart-legend-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--accent-blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .chart-canvas-wrapper {
+      position: relative;
+      width: 100%;
+      height: 340px;
+    }
+
+    /* ========================================================
+       TABEL HIDROLOGI (PERSIS FORMAT FOTO 3 / SLIDE KULIAH)
+       ======================================================== */
+    .lecture-table-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .table-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .lecture-slide-title h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1E293B;
+    }
+    .lecture-slide-title p {
+      font-size: 13px;
+      color: #64748B;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .table-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .table-day-selector-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+    }
+
+    .table-day-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748B;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .table-day-select {
+      background: transparent;
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      outline: none;
+      cursor: pointer;
+      max-width: 260px;
+    }
+
+    .btn-table-action {
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      font-size: 12.5px;
+      font-weight: 700;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    .btn-table-csv {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+    .btn-table-csv:hover {
+      background: #1D4ED8;
+    }
+    .btn-table-excel {
+      background: #059669;
+      color: #fff;
+    }
+    .btn-table-excel:hover {
+      background: #047857;
+    }
+
+    .lecture-table-container {
+      border: 1px solid #E2E8F0;
+      border-radius: 18px;
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: 420px;
+      box-shadow: 0 4px 14px rgba(27, 43, 65, 0.03);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .lecture-table-container::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .lecture-table-container::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 999px;
+    }
+
+    .lecture-hydro-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      font-size: 13.5px;
+    }
+
+    .lecture-hydro-table th.col-no {
+      width: 60px;
+    }
+    .lecture-hydro-table th.col-time {
+      width: 180px;
+    }
+
+    .lecture-hydro-table th {
+      background: #F8FAFC;
+      color: #475569;
+      font-weight: 700;
+      padding: 13px 16px;
+      border-bottom: 2px solid #CBD5E1;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .lecture-hydro-table td {
+      padding: 11px 16px;
+      border-bottom: 1px solid #F1F5F9;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .lecture-hydro-table tbody tr:nth-child(even) {
+      background: #FAFCFE;
+    }
+
+    .lecture-hydro-table tbody tr:hover {
+      background: rgba(37, 99, 235, 0.04);
+    }
+
+    .lecture-hydro-table td.peak-row {
+      background: rgba(37, 99, 235, 0.1) !important;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    /* Footer persis di whiteboard foto 3 */
+    .lecture-hydro-table tfoot td {
+      background: #F1F5F9;
+      font-weight: 800;
+      color: #0F172A;
+      padding: 14px 16px;
+      border-top: 2px solid #94A3B8;
+      font-size: 14px;
+    }
+
+    /* Empty state */
+    .empty-state-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: var(--radius-lg);
+      z-index: 10;
+    }
+    .empty-state-overlay.active {
+      display: flex;
+    }
+
+    /* ========================================================
+       3. RIGHT SIDEBAR: WEATHER HERO CARDS
+       ======================================================== */
+    .right-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .weather-hero-card {
+      background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 50%, #38BDF8 100%);
+      border-radius: var(--radius-xl);
+      padding: 26px;
+      color: #FFFFFF;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 16px 36px -4px rgba(37, 99, 235, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .weather-hero-card::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      filter: blur(20px);
+    }
+
+    .hero-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .station-pill {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 11.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      max-width: 100%;
+    }
+
+    .weather-art {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 8px 0 16px;
+    }
+
+    .weather-art-icon {
+      filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
+      animation: floatSlow 4s ease-in-out infinite;
+    }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+
+    .hero-metric-center {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .hero-val-display {
+      font-size: 50px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -1.5px;
+    }
+
+    .hero-val-unit {
+      font-size: 20px;
+      font-weight: 600;
+      margin-left: 2px;
+      opacity: 0.9;
+    }
+
+    .hero-metric-label {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.88);
+      margin-top: 6px;
+    }
+
+    .bmkg-pill-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 800;
+      background: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(8px);
+      margin-top: 10px;
+    }
+
+    /* Sub Weather Cards - 2-Baris Anti-Collision Layout (Bebas Tumpang Tindih) */
+    .sub-weather-card {
+      padding: 16px 18px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      color: #FFFFFF;
+      box-shadow: 0 10px 24px -2px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .sub-card-blue {
+      background: linear-gradient(135deg, #0284C7, #38BDF8);
+    }
+    .sub-card-teal {
+      background: linear-gradient(135deg, #0D9488, #2DD4BF);
+    }
+
+    .sub-card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      row-gap: 6px;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .sub-card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .sub-card-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      flex-shrink: 0;
+    }
+
+    .sub-card-title-text {
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.95);
+      line-height: 1.25;
+    }
+
+    .sub-card-pill-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      white-space: nowrap;
+      max-width: 100%;
+      flex-shrink: 1;
+      backdrop-filter: blur(6px);
+      letter-spacing: -0.2px;
+    }
+
+    .sub-card-body-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      row-gap: 4px;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .sub-card-big-value {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+      color: #FFFFFF;
+    }
+
+    .sub-card-sub-hint {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.25;
+    }
+
+    /* Mini Metrics 2x2 Grid */
+    .mini-metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .mini-stat-card {
+      background: #FFFFFF;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 4px 14px rgba(27, 43, 65, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .mini-stat-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .mini-stat-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .mini-stat-sub {
+      font-size: 11px;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    /* ========================================================
+       MODAL UPLOAD POP-UP (.NC FILE DRAG & DROP)
+       ======================================================== */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .upload-modal-card {
+      background: #FFFFFF;
+      width: 100%;
+      max-width: 520px;
+      border-radius: 28px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--card-border);
+      padding: 32px 28px;
+      text-align: center;
+      position: relative;
+      transform: scale(0.95);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-backdrop.show .upload-modal-card {
+      transform: scale(1);
+    }
+
+    .dropzone-box {
+      margin-top: 20px;
+      border: 2px dashed #93C5FD;
+      background: #F8FAFC;
+      border-radius: 20px;
+      padding: 36px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .dropzone-box:hover, .dropzone-box.drag-over {
+      border-color: var(--accent-blue);
+      background: #EFF6FF;
+      transform: translateY(-2px);
+    }
+
+    .dropzone-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 20px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-browse {
+      padding: 10px 24px;
+      border-radius: var(--radius-pill);
+      background: var(--accent-blue);
+      color: #FFFFFF;
+      font-size: 13.5px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+      margin-top: 6px;
+    }
+
+    /* Uploading spinner indicator */
+    .upload-progress-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .upload-progress-state.active {
+      display: flex;
+    }
+
+    .spinner-ring {
+      width: 44px;
+      height: 44px;
+      border: 4px solid #E2E8F0;
+      border-top-color: var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Toast Notification */
+    .toast-notification {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      background: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.15);
+      border: 1px solid #E2E8F0;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10000;
+      opacity: 0;
+      transform: translateY(-15px);
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast-notification.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .toast-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toast-success .toast-icon {
+      background: rgba(16, 185, 129, 0.12);
+      color: #059669;
+    }
+    .toast-error .toast-icon {
+      background: rgba(244, 63, 94, 0.12);
+      color: #E11D48;
+    }
+
+    /* ========================================================
+       RESPONSIVE DESIGN: TABLET & MOBILE (ZERO OVERLAP)
+       ======================================================== */
+    @media (max-width: 860px) {
+      body {
+        padding: 12px 12px 92px 12px;
+        align-items: flex-start;
+      }
+
+      .dashboard-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 16px;
+        border-radius: 22px;
+      }
+
+      .mobile-brand-logo {
+        display: inline-flex;
+      }
+
+      /* Navigasi berubah menjadi Sticky Floating Bottom Dock di Mobile */
+      .left-sidebar {
+        position: fixed;
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
+        height: 62px;
+        width: auto;
+        z-index: 95;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: center;
+        padding: 6px 10px;
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.96);
+        box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.16), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+      }
+
+      .left-sidebar .app-brand {
+        display: none;
+      }
+
+      .sidebar-top-group {
+        flex-direction: row;
+        gap: 8px;
+      }
+
+      .nav-menu {
+        flex-direction: row;
+        gap: 8px;
+      }
+
+      .bottom-menu {
+        flex-direction: row;
+        gap: 8px;
+      }
+
+      .nav-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+      }
+
+      .nav-btn.active::after {
+        bottom: 4px;
+        width: 4px;
+        height: 4px;
+      }
+
+      /* Filter Island muncul rapi di atas bottom dock */
+      .filter-island {
+        position: fixed;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: 84px !important;
+        top: auto !important;
+        width: auto;
+        max-width: 440px;
+        margin: 0 auto;
+        max-height: calc(100vh - 108px);
+        overflow-y: auto;
+        transform: translateY(15px) scale(0.96);
+        padding: 16px;
+      }
+
+      .filter-island.show {
+        transform: translateY(0) scale(1);
+      }
+
+      .right-sidebar {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .weather-hero-card {
+        grid-column: 1 / -1;
+        grid-row: auto;
+        padding: 20px;
+      }
+
+      .mini-metrics-grid {
+        grid-column: 1 / -1;
+      }
+
+      .visualization-card {
+        padding: 16px;
+      }
+
+      .chart-canvas-wrapper {
+        height: 260px;
+      }
+
+      .lecture-table-card {
+        padding: 16px;
+      }
+
+      .table-top-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .table-actions {
+        width: 100%;
+      }
+
+      .table-day-selector-group {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .table-day-select {
+        flex: 1;
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .btn-table-action {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 10px 10px 88px 10px;
+      }
+
+      .dashboard-container {
+        padding: 14px;
+        gap: 14px;
+        border-radius: 20px;
+      }
+
+      .right-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .chart-canvas-wrapper {
+        height: 230px;
+      }
+
+      .chart-title-group h3 {
+        font-size: 15px;
+      }
+
+      .chart-title-group p {
+        font-size: 11.5px;
+      }
+
+      .chart-legend-badge {
+        font-size: 11px;
+        padding: 4px 10px;
+      }
+
+      .hero-val-display {
+        font-size: 40px;
+      }
+
+      .hero-val-unit {
+        font-size: 16px;
+      }
+
+      .sub-weather-card {
+        padding: 14px;
+        gap: 8px;
+      }
+
+      .sub-card-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+      }
+
+      .sub-card-title-text {
+        font-size: 11px;
+      }
+
+      .sub-card-pill-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+      }
+
+      .sub-card-big-value {
+        font-size: 19px;
+      }
+
+      .sub-card-sub-hint {
+        font-size: 10px;
+      }
+
+      .mini-stat-card {
+        padding: 12px;
+      }
+
+      .mini-stat-header {
+        font-size: 11px;
+      }
+
+      .mini-stat-val {
+        font-size: 17px;
+      }
+
+      .mini-stat-sub {
+        font-size: 10px;
+      }
+
+      .lecture-hydro-table {
+        font-size: 11.5px;
+      }
+
+      .lecture-hydro-table th.col-no {
+        width: 32px;
+      }
+
+      .lecture-hydro-table th.col-time {
+        width: auto;
+      }
+
+      .lecture-hydro-table th {
+        padding: 9px 6px;
+        font-size: 10.5px;
+        line-height: 1.25;
+      }
+
+      .lecture-hydro-table td {
+        padding: 9px 6px;
+        font-size: 11.5px;
+      }
+
+      .lecture-hydro-table tfoot td {
+        padding: 10px 6px;
+        font-size: 11.5px;
+      }
+
+      .island-tab-btn {
+        font-size: 10.5px;
+        padding: 6px 4px;
+      }
+
+      .toast-notification {
+        top: 12px;
+        right: 12px;
+        left: 12px;
+        padding: 12px 14px;
+      }
+
+      .upload-modal-card {
+        padding: 22px 18px;
+        border-radius: 22px;
+      }
+
+      .dropzone-box {
+        padding: 24px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast-notification toast-success" id="toastNotice">
+    <div class="toast-icon">
+      <i data-lucide="check-circle-2" style="width: 20px; height: 20px;"></i>
+    </div>
+    <div>
+      <div style="font-size: 13.5px; font-weight: 800; color: #0F172A;" id="toastTitle">Sukses</div>
+      <div style="font-size: 12px; color: #64748B; font-weight: 500;" id="toastMsg">File .nc berhasil diproses!</div>
+    </div>
+  </div>
+
+  <!-- POP-UP MODAL DRAG & DROP UPLOAD FILE .NC -->
+  <div class="modal-backdrop" id="uploadModal" onclick="if(event.target===this) closeUploadModal()">
+    <div class="upload-modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <h3 style="font-size: 19px; font-weight: 800; color: #0F172A;">Upload Dataset ERA5 (.nc)</h3>
+        <button class="btn-island-close" onclick="closeUploadModal()">
+          <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+      <p style="font-size: 13px; color: #64748B; line-height: 1.5;">
+        File NetCDF (.nc) atau arsip (.zip) akan diproses langsung oleh mesin Python untuk mengekstrak titik koordinat Semarang.
+      </p>
+
+      <div class="dropzone-box" id="ncDropZone" onclick="document.getElementById('hiddenNcInput').click()">
+        <div class="dropzone-icon">
+          <i data-lucide="upload-cloud" style="width: 32px; height: 32px;"></i>
+        </div>
+        <div>
+          <div style="font-size: 14.5px; font-weight: 700; color: #1E293B;">Tarik &amp; lepas file .nc ke sini</div>
+          <div style="font-size: 12px; color: #94A3B8; margin-top: 2px;">Format didukung: NetCDF (.nc) atau .zip</div>
+        </div>
+        <input type="file" id="hiddenNcInput" accept=".nc,.zip" style="display: none;" onchange="handleFilePicked(this.files)">
+        <button class="btn-browse" type="button">Pilih File dari Komputer</button>
+      </div>
+
+      <div class="upload-progress-state" id="uploadProgressArea">
+        <div class="spinner-ring"></div>
+        <div style="font-size: 13.5px; font-weight: 700; color: #1E293B;" id="uploadStatusText">Memproses file dengan mesin Python...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING DYNAMIC ISLAND: KONFIGURASI FILTER (LANGSUNG DI BODY AGAR RESPONSIF DI DESKTOP & MOBILE) -->
+  <div class="filter-island" id="filterIsland">
+    <div class="island-header">
+      <div class="island-title">
+        <i data-lucide="filter" style="width: 16px; height: 16px; color: var(--accent-blue);"></i>
+        <span>Konfigurasi Filter Periode</span>
+      </div>
+      <button class="btn-island-close" onclick="toggleFilterIsland(false)">
+        <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+      </button>
+    </div>
+
+    <!-- 3 Mode Filter Tabs -->
+    <div class="island-mode-tabs">
+      <button class="island-tab-btn active" id="tabModeDaily" onclick="setFilterMode('daily')">Harian</button>
+      <button class="island-tab-btn" id="tabModeMonths" onclick="setFilterMode('months')">Rentang Bulan</button>
+      <button class="island-tab-btn" id="tabModePeriod" onclick="setFilterMode('period')">Tahunan/30H</button>
+    </div>
+
+    <!-- Subview 1: Harian (Spesifik Tanggal) -->
+    <div class="island-subview active" id="islandSubDaily">
+      <div class="island-date-row">
+        <button class="btn-island-icon" title="Hari Sebelumnya" onclick="navigateDailyOffset(-1)">
+          <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+        </button>
+        <input type="date" class="island-date-input" id="islandDateInput" onchange="onDateSelected(this.value)">
+        <button class="btn-island-icon" title="Hari Berikutnya" onclick="navigateDailyOffset(1)">
+          <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+        </button>
+      </div>
+      <button class="btn-island-peak" onclick="jumpToPeakDay()">
+        <i data-lucide="zap" style="width: 14px; height: 14px;"></i>
+        Ke Hari Terbasah (Peak)
+      </button>
+    </div>
+
+    <!-- Subview 2: Rentang Bulan (Multi-Month Checklist) -->
+    <div class="island-subview" id="islandSubMonths">
+      <div class="island-actions-row">
+        <span style="font-size: 11px; font-weight: 700; color: #64748B;">PILIH BULAN:</span>
+        <div>
+          <button class="btn-mini-link" onclick="toggleAllMonths(true)">Pilih Semua</button>
+          <span style="color:#CBD5E1;">&bull;</span>
+          <button class="btn-mini-link" onclick="toggleAllMonths(false)">Hapus Semua</button>
+        </div>
+      </div>
+      <div class="island-month-grid" id="islandMonthChecklist">
+        <!-- Dynamically populated via JS -->
+      </div>
+    </div>
+
+    <!-- Subview 3: Tahunan / 30 Hari Presets -->
+    <div class="island-subview" id="islandSubPeriod">
+      <div class="island-preset-list">
+        <button class="btn-island-preset active" data-preset="30days" onclick="setPeriodPreset('30days', this)">30 Hari Terakhir</button>
+        <button class="btn-island-preset" data-preset="wet_season" onclick="setPeriodPreset('wet_season', this)">Musim Hujan (Jan - Mar)</button>
+        <button class="btn-island-preset" data-preset="transition" onclick="setPeriodPreset('transition', this)">Pancaroba (Apr - Mei)</button>
+        <button class="btn-island-preset" data-preset="dry_season" onclick="setPeriodPreset('dry_season', this)">Kemarau (Jun - Sep)</button>
+        <button class="btn-island-preset" id="btnPresetAllYear" data-preset="all_year" onclick="setPeriodPreset('all_year', this)">Seluruh Tahun 2026 (Bulan)</button>
+      </div>
+    </div>
+
+    <!-- Opsi Tampilan Grafik: Intensitas vs Akumulasi -->
+    <div class="island-display-toggle">
+      <div class="island-display-label">Tampilan Grafik</div>
+      <div class="display-pill-wrapper">
+        <button class="display-pill-btn active" id="btnDisplayHourly" onclick="setChartDisplay('hourly')">Intensitas (mm/jam)</button>
+        <button class="display-pill-btn" id="btnDisplayAccum" onclick="setChartDisplay('accumulation')">Akumulasi (mm)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN DASHBOARD CONTAINER -->
+  <div class="dashboard-container">
+
+    <!-- ==========================================
+         1. LEFT SIDEBAR (DESKTOP) / BOTTOM DOCK (MOBILE)
+         ========================================== -->
+    <aside class="left-sidebar">
+      <div class="sidebar-top-group">
+        <div class="app-brand" title="RainScope / Semarang Weather Lab">
+          <i data-lucide="cloud-rain" style="width: 28px; height: 28px;"></i>
+        </div>
+
+        <ul class="nav-menu">
+          <!-- Icon 1: Tampilan Grafik (Persis Foto 1) -->
+          <li>
+            <button class="nav-btn active" id="btnNavGraph" title="Tampilan Grafik (Hyetograph)" onclick="switchView('graph')">
+              <i data-lucide="bar-chart-3" style="width: 22px; height: 22px;"></i>
+            </button>
+          </li>
+
+          <!-- Icon 2: Tampilan Tabel Hidrologi (Persis Foto 3) -->
+          <li>
+            <button class="nav-btn" id="btnNavTable" title="Tabel Perhitungan Hidrologi (Slide Kuliah)" onclick="switchView('table')">
+              <i data-lucide="table-2" style="width: 22px; height: 22px;"></i>
+            </button>
+          </li>
+
+          <!-- Icon 3: Tombol Filter (Membuka Floating Island) -->
+          <li>
+            <button class="nav-btn" id="btnNavFilter" title="Konfigurasi Filter Periode" onclick="toggleFilterIsland(undefined, event)">
+              <i data-lucide="sliders-horizontal" style="width: 22px; height: 22px;"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Bottom Menu: Upload file .nc & Unduh CSV -->
+      <div class="bottom-menu">
+        <button class="nav-btn" title="Upload File .nc Baru" onclick="openUploadModal()">
+          <i data-lucide="upload-cloud" style="width: 22px; height: 22px;"></i>
+        </button>
+        <button class="nav-btn" title="Unduh CSV Sesuai Filter" onclick="downloadCurrentCSV(true)">
+          <i data-lucide="arrow-down-to-line" style="width: 22px; height: 22px;"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ==========================================
+         2. KONTEN UTAMA (TENGAH)
+         ========================================== -->
+    <main class="main-content">
+
+      <!-- Header Utama: Bersih & Minimalis (Tanpa Pill Status Hujan Sedang & Peak) -->
+      <header class="top-header">
+        <div class="header-brand-title-row">
+          <div class="mobile-brand-logo" title="RainScope / Semarang Weather Lab">
+            <i data-lucide="cloud-rain" style="width: 22px; height: 22px;"></i>
+          </div>
+          <div class="location-info">
+            <h1>Kota Semarang, Jawa Tengah</h1>
+            <div class="subtitle">
+              <i data-lucide="map-pin" style="width: 14px; height: 14px; color: var(--accent-blue); flex-shrink: 0; margin-top: 2px;"></i>
+              <span>Stasiun Grid ERA5 (Lat: -6.99° S, Lon: 110.42° E) &bull; Waktu Indonesia Barat (WIB)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="period-active-badge" id="activePeriodBadge">
+          <i data-lucide="calendar-check" style="width: 15px; height: 15px; flex-shrink: 0;"></i>
+          <span id="activePeriodText">Memuat data...</span>
+        </div>
+      </header>
+
+      <!-- VIEW 1: GRAFIK CURAH HUJAN (HYETOGRAPH BATANG BIRU) -->
+      <div class="view-container active" id="viewGraph">
+        <section class="clay-card visualization-card">
+          <div class="chart-header">
+            <div class="chart-title-group">
+              <h3 id="chartDynamicTitle">Grafik Curah Hujan</h3>
+              <p id="chartDynamicSubtitle">Distribusi curah hujan intensitas per jam (WIB)</p>
+            </div>
+            <div class="chart-legend-badge">
+              <span style="width: 10px; height: 10px; border-radius: 3px; background: var(--accent-blue);"></span>
+              <span id="chartLegendText">Intensitas (mm/jam)</span>
+            </div>
+          </div>
+
+          <div class="chart-canvas-wrapper">
+            <canvas id="hyetoCanvas"></canvas>
+            <div class="empty-state-overlay" id="chartEmptyOverlay">
+              <i data-lucide="cloud-off" style="width: 42px; height: 42px; color: #94A3B8;"></i>
+              <span style="font-size: 15px; font-weight: 700; color: #64748B; margin-top: 10px;">Tidak ada data untuk periode ini</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- VIEW 2: TABEL HIDROLOGI (PERSIS FORMAT FOTO 3 / SLIDE KULIAH) -->
+      <div class="view-container" id="viewTable">
+        <section class="clay-card lecture-table-card">
+          <div class="table-top-bar">
+            <div class="lecture-slide-title">
+              <h3>Penyelesaian : Perhitungan Intensitas Hujan Tiap Jam</h3>
+              <p id="lectureSlideSubtitle">Format Standar Kuliah Teknik Hidrologi (Waktu Indonesia Barat)</p>
+            </div>
+            <div class="table-actions">
+              <div class="table-day-selector-group" id="tableDaySelectorWrap" style="display: none;">
+                <label class="table-day-label" for="tableDaySelect">
+                  <i data-lucide="calendar" style="width: 14px; height: 14px; color: var(--accent-blue);"></i>
+                  <span>Data Jam:</span>
+                </label>
+                <select id="tableDaySelect" class="table-day-select" onchange="onTableDayChanged(this.value)"></select>
+              </div>
+              <button class="btn-table-action btn-table-csv" onclick="downloadCurrentCSV()">
+                <i data-lucide="file-spreadsheet" style="width: 15px; height: 15px;"></i>
+                Unduh CSV
+              </button>
+              <button class="btn-table-action btn-table-excel" onclick="downloadCurrentExcel()">
+                <i data-lucide="file-text" style="width: 15px; height: 15px;"></i>
+                Unduh Excel
+              </button>
+            </div>
+          </div>
+
+          <div class="lecture-table-container">
+            <table class="lecture-hydro-table">
+              <thead>
+                <tr>
+                  <th class="col-no">No.</th>
+                  <th id="thColTime" class="col-time">Waktu (pukul)</th>
+                  <th>Tinggi hujan (mm)</th>
+                  <th>Lamanya (jam)</th>
+                  <th>Intensitas (mm/jam)</th>
+                </tr>
+              </thead>
+              <tbody id="lectureTableBody">
+                <!-- Dynamically populated via JS -->
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="2" style="text-align: right; padding-right: 20px;">TOTAL &amp; I-MAKS :</td>
+                  <td id="footTotalRainfall">-</td>
+                  <td id="footDuration">-</td>
+                  <td id="footMaxIntensity" style="color: var(--accent-blue);">-</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </section>
+      </div>
+
+    </main>
+
+    <!-- ==========================================
+         3. SIDEBAR KANAN: WEATHER HERO CARDS
+         ========================================== -->
+    <aside class="right-sidebar">
+
+      <!-- Kartu Cuaca Utama (Gradien Biru) -->
+      <div class="weather-hero-card">
+        <div class="hero-top-row">
+          <span class="station-pill">
+            <i data-lucide="radio" style="width: 13px; height: 13px;"></i>
+            Stasiun Semarang
+          </span>
+          <span id="heroDateBadge" style="font-size: 12px; font-weight: 700; opacity: 0.9;">-</span>
+        </div>
+
+        <div class="weather-art">
+          <svg class="weather-art-icon" width="94" height="84" viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="34" cy="34" r="18" fill="#FBBF24" opacity="0.9" />
+            <path d="M28 58C22.4772 58 18 53.5228 18 48C18 42.8878 21.8415 38.674 26.8043 38.0834C28.4877 30.6385 35.1091 25 43 25C51.7828 25 59.0205 31.8596 59.9079 40.5186C63.9535 41.5641 67 45.218 67 49.5C67 54.7467 62.7467 59 57.5 59H28Z" fill="#FFFFFF" fill-opacity="0.95" />
+            <line x1="30" y1="66" x2="26" y2="76" stroke="#BAE6FD" stroke-width="3" stroke-linecap="round" />
+            <line x1="42" y1="66" x2="38" y2="76" stroke="#BAE6FD" stroke-width="3" stroke-linecap="round" />
+            <line x1="54" y1="66" x2="50" y2="76" stroke="#BAE6FD" stroke-width="3" stroke-linecap="round" />
+          </svg>
+        </div>
+
+        <div class="hero-metric-center">
+          <div class="hero-val-display">
+            <span id="heroTotalRainVal">-</span>
+            <span class="hero-val-unit">mm</span>
+          </div>
+          <div class="hero-metric-label" id="heroRainPeriodLabel">Total Presipitasi Periode</div>
+          <div>
+            <span class="bmkg-pill-badge" id="heroBmkgBadge">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub Weather Metric Cards (Anti-Overlap 2-Baris Layout) -->
+      <div class="sub-weather-card sub-card-blue">
+        <div class="sub-card-header-row">
+          <div class="sub-card-header-left">
+            <div class="sub-card-icon">
+              <i data-lucide="gauge" style="width: 18px; height: 18px;"></i>
+            </div>
+            <span class="sub-card-title-text">Intensitas Maks (I-maks)</span>
+          </div>
+          <span class="sub-card-pill-badge" id="subPeakHourTime">-</span>
+        </div>
+        <div class="sub-card-body-row">
+          <div class="sub-card-big-value" id="subPeakIntensityVal">-</div>
+          <span class="sub-card-sub-hint" id="subPeakHint">Puncak Presipitasi</span>
+        </div>
+      </div>
+
+      <div class="sub-weather-card sub-card-teal">
+        <div class="sub-card-header-row">
+          <div class="sub-card-header-left">
+            <div class="sub-card-icon">
+              <i data-lucide="clock" style="width: 18px; height: 18px;"></i>
+            </div>
+            <span class="sub-card-title-text" id="subActiveTimeLabel">Durasi Hujan Aktif</span>
+          </div>
+          <span class="sub-card-pill-badge">&ge; 0.1 mm/jam</span>
+        </div>
+        <div class="sub-card-body-row">
+          <div class="sub-card-big-value" id="subActiveDurationVal">-</div>
+          <span class="sub-card-sub-hint" id="subActiveHint">Ambang BMKG</span>
+        </div>
+      </div>
+
+      <!-- Mini Metrics 2x2 Grid -->
+      <div class="mini-metrics-grid">
+        <div class="mini-stat-card">
+          <div class="mini-stat-header">
+            <i data-lucide="activity" style="width: 14px; height: 14px; color: var(--accent-blue);"></i>
+            <span id="miniStat1Label">Rata-rata Intensitas</span>
+          </div>
+          <div class="mini-stat-val" id="miniStat1Val">-</div>
+          <div class="mini-stat-sub" id="miniStat1Sub">mm/jam saat hujan</div>
+        </div>
+
+        <div class="mini-stat-card">
+          <div class="mini-stat-header">
+            <i data-lucide="calendar-days" style="width: 14px; height: 14px; color: var(--accent-teal);"></i>
+            <span id="miniStat2Label">Total Hari</span>
+          </div>
+          <div class="mini-stat-val" id="miniStat2Val">-</div>
+          <div class="mini-stat-sub" id="miniStat2Sub">Hari dalam periode</div>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- JAVASCRIPT CONTROLLER & LOGIC -->
+  <script>
+    // ========================================================
+    // ========================================================
+    // GLOBAL STATE
+    // ========================================================
+    let rawDataset = null;             // Full payload from /api/data
+    let activeView = 'graph';          // 'graph' | 'table'
+    let currentFilterMode = 'daily';   // 'daily' | 'months' | 'period'
+    let currentChartDisplay = 'hourly';// 'hourly' | 'accumulation'
+    let selectedDate = '';             // 'YYYY-MM-DD'
+    let selectedMonths = new Set();    // Set of 'YYYY-MM'
+    let selectedPeriodPreset = '30days';
+    let hyetoChartInstance = null;
+    let currentTableData = [];         // Table rows currently shown (for export)
+    let currentFilteredRecords = [];   // Hourly records matching the sidebar filter
+    let currentPeriodLabel = '';
+    let currentIsDaily = true;
+    let tableSelectedScope = 'peak';   // 'peak' | 'all_active' | 'YYYY-MM-DD'
+    let currentChartMeta = {
+      isDaily: true,
+      isAnnualMonthly: false,
+      legendText: '',
+      labels: [],
+      monthlyDetails: []
+    };
+
+    const MONTH_SHORT_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    const MONTH_FULL_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+    // BMKG Classification Criteria
+    function getBMKGCategory(totalDailyMm) {
+      if (isNaN(totalDailyMm) || totalDailyMm === null) return { label: '-', color: '#FFFFFF' };
+      if (totalDailyMm < 0.5) return { label: 'Berawan / Kering', color: '#10B981' };
+      if (totalDailyMm < 20) return { label: 'Hujan Ringan', color: '#BAE6FD' };
+      if (totalDailyMm < 50) return { label: 'Hujan Sedang', color: '#93C5FD' };
+      if (totalDailyMm < 100) return { label: 'Hujan Lebat', color: '#FCD34D' };
+      if (totalDailyMm < 150) return { label: 'Hujan Sangat Lebat', color: '#F97316' };
+      return { label: 'Hujan Ekstrem', color: '#EF4444' };
+    }
+
+    // ========================================================
+    // DATA FETCHING & INITIALIZATION
+    // ========================================================
+    async function initDashboardData() {
+      try {
+        const res = await fetch('/api/data');
+        if (!res.ok) throw new Error('API request failed');
+        const data = await res.json();
+
+        if (data.status === 'success' && data.has_data && data.records.length > 0) {
+          rawDataset = data;
+          onDataLoaded();
+        } else {
+          renderNoDataState();
+        }
+      } catch (err) {
+        console.warn('Gagal memuat /api/data. Menampilkan status kosong...', err);
+        renderNoDataState();
+      }
+    }
+
+    const SESSION_STORAGE_KEY = 'rainscope_dashboard_session_v1';
+
+    function loadDashboardSession() {
+      try {
+        const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return (parsed && typeof parsed === 'object') ? parsed : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function saveDashboardSession() {
+      try {
+        const dates = (rawDataset && Array.isArray(rawDataset.daily_summary))
+          ? rawDataset.daily_summary.map(d => d.date)
+          : [];
+        const payload = {
+          activeView,
+          currentFilterMode,
+          currentChartDisplay,
+          selectedDate,
+          selectedMonths: Array.from(selectedMonths),
+          monthsExplicitlyEmpty: selectedMonths.size === 0,
+          selectedPeriodPreset,
+          tableSelectedScope,
+          datasetStart: dates[0] || '',
+          datasetEnd: dates[dates.length - 1] || ''
+        };
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(payload));
+      } catch (e) {
+        // Abaikan jika storage diblokir
+      }
+    }
+
+    function clearDashboardSession() {
+      try {
+        localStorage.removeItem(SESSION_STORAGE_KEY);
+      } catch (e) {}
+    }
+
+    function syncViewUI(viewName) {
+      document.getElementById('btnNavGraph').classList.toggle('active', viewName === 'graph');
+      document.getElementById('btnNavTable').classList.toggle('active', viewName === 'table');
+      document.getElementById('viewGraph').classList.toggle('active', viewName === 'graph');
+      document.getElementById('viewTable').classList.toggle('active', viewName === 'table');
+    }
+
+    function syncFilterModeUI(mode) {
+      document.getElementById('tabModeDaily').classList.toggle('active', mode === 'daily');
+      document.getElementById('tabModeMonths').classList.toggle('active', mode === 'months');
+      document.getElementById('tabModePeriod').classList.toggle('active', mode === 'period');
+      document.getElementById('islandSubDaily').classList.toggle('active', mode === 'daily');
+      document.getElementById('islandSubMonths').classList.toggle('active', mode === 'months');
+      document.getElementById('islandSubPeriod').classList.toggle('active', mode === 'period');
+    }
+
+    function syncChartDisplayUI(type) {
+      document.getElementById('btnDisplayHourly').classList.toggle('active', type === 'hourly');
+      document.getElementById('btnDisplayAccum').classList.toggle('active', type === 'accumulation');
+    }
+
+    function syncPeriodPresetUI(preset, btnEl = null) {
+      document.querySelectorAll('.btn-island-preset').forEach(b => {
+        const isMatch = btnEl ? (b === btnEl) : (b.dataset.preset === preset);
+        b.classList.toggle('active', isMatch);
+      });
+    }
+
+    function onDataLoaded() {
+      const dates = rawDataset.daily_summary.map(d => d.date);
+      if (dates.length === 0) {
+        renderNoDataState();
+        return;
+      }
+
+      const saved = loadDashboardSession();
+      const validModes = new Set(['daily', 'months', 'period']);
+      const validDisplays = new Set(['hourly', 'accumulation']);
+      const validViews = new Set(['graph', 'table']);
+      const validPresets = new Set(['30days', 'wet_season', 'transition', 'dry_season', 'all_year']);
+      const availableMonthKeys = new Set(rawDataset.months.map(m => m.key));
+
+      // Pulihkan mode tampilan, filter, preset, dan tampilan grafik jika valid
+      activeView = (saved && validViews.has(saved.activeView)) ? saved.activeView : 'graph';
+      currentFilterMode = (saved && validModes.has(saved.currentFilterMode)) ? saved.currentFilterMode : 'daily';
+      currentChartDisplay = (saved && validDisplays.has(saved.currentChartDisplay)) ? saved.currentChartDisplay : 'hourly';
+      selectedPeriodPreset = (saved && validPresets.has(saved.selectedPeriodPreset)) ? saved.selectedPeriodPreset : '30days';
+      tableSelectedScope = (saved && typeof saved.tableSelectedScope === 'string') ? saved.tableSelectedScope : 'peak';
+
+      // Pulihkan tanggal terakhir jika ada di dataset, fallback ke hari terbasah (peak day)
+      selectedDate = (saved && typeof saved.selectedDate === 'string' && dates.includes(saved.selectedDate))
+        ? saved.selectedDate
+        : (rawDataset.metadata.peak_day || dates[0]);
+
+      // Update label preset tahunan sesuai tahun dataset
+      const datasetYear = dates[0].slice(0, 4) || '2026';
+      const btnAllYear = document.getElementById('btnPresetAllYear');
+      if (btnAllYear) btnAllYear.innerText = `Seluruh Tahun ${datasetYear} (Bulan)`;
+
+      // Setup Date Input bounds
+      const dateInput = document.getElementById('islandDateInput');
+      dateInput.min = dates[0];
+      dateInput.max = dates[dates.length - 1];
+      dateInput.value = selectedDate;
+
+      // Setup Month Checklist in Island & pulihkan bulan terpilih dari sesi
+      setupMonthChecklist();
+      selectedMonths.clear();
+      const savedMonths = (saved && Array.isArray(saved.selectedMonths))
+        ? saved.selectedMonths.filter(k => availableMonthKeys.has(k))
+        : [];
+      const isSameDatasetEmptyMonths = Boolean(
+        saved && saved.monthsExplicitlyEmpty && saved.datasetStart === dates[0] && saved.datasetEnd === dates[dates.length - 1]
+      );
+
+      if (savedMonths.length > 0 || isSameDatasetEmptyMonths) {
+        savedMonths.forEach(k => selectedMonths.add(k));
+      } else {
+        rawDataset.months.forEach(m => selectedMonths.add(m.key));
+      }
+
+      rawDataset.months.forEach(m => {
+        const isChecked = selectedMonths.has(m.key);
+        const cb = document.querySelector(`input[value="${m.key}"]`);
+        const lbl = document.getElementById(`lbl_month_${m.key}`);
+        if (cb) cb.checked = isChecked;
+        if (lbl) lbl.classList.toggle('checked', isChecked);
+      });
+
+      // Sinkronkan seluruh elemen UI sebelum render
+      syncViewUI(activeView);
+      syncFilterModeUI(currentFilterMode);
+      syncChartDisplayUI(currentChartDisplay);
+      syncPeriodPresetUI(selectedPeriodPreset);
+
+      // Render & simpan kembali state tervalidasi
+      updateChartDisplayButtons();
+      applyFilterAndRender(true);
+      saveDashboardSession();
+      lucide.createIcons();
+    }
+
+    function renderNoDataState() {
+      document.getElementById('heroTotalRainVal').innerText = '-';
+      document.getElementById('heroDateBadge').innerText = 'No Data';
+      document.getElementById('heroBmkgBadge').innerText = '-';
+      document.getElementById('subPeakIntensityVal').innerText = '-';
+      document.getElementById('subPeakHourTime').innerText = '-';
+      document.getElementById('subActiveDurationVal').innerText = '-';
+      document.getElementById('miniStat1Val').innerText = '-';
+      document.getElementById('miniStat2Val').innerText = '-';
+      document.getElementById('activePeriodText').innerText = 'Tidak Ada Data';
+      document.getElementById('chartEmptyOverlay').classList.add('active');
+      document.getElementById('chartDynamicTitle').innerText = 'Tidak Ada Data Tersedia';
+      document.getElementById('chartDynamicSubtitle').innerText = 'Silakan upload file dataset .nc melalui tombol upload di sidebar.';
+      
+      const tbody = document.getElementById('lectureTableBody');
+      tbody.innerHTML = '<tr><td colspan="5" style="padding: 24px; color: #94A3B8;">Tidak ada data. Silakan upload file .nc.</td></tr>';
+      lucide.createIcons();
+    }
+
+    // ========================================================
+    // VIEW SWITCHER (GRAFIK vs TABEL HIDROLOGI FOTO 3)
+    // ========================================================
+    function syncHyetoChartResponsiveStyle() {
+      if (!hyetoChartInstance) return;
+      const canvasEl = document.getElementById('hyetoCanvas');
+      const ctx = canvasEl ? canvasEl.getContext('2d') : null;
+      const isMobile = window.innerWidth <= 600;
+      const isAnnualMonthly = currentChartMeta.isAnnualMonthly;
+      const isDaily = currentChartMeta.isDaily;
+
+      const ds = hyetoChartInstance.data.datasets[0];
+      if (ds) {
+        if (ctx && canvasEl) {
+          ds.backgroundColor = createHyetoBlueGradient(ctx, canvasEl);
+        }
+        ds.borderRadius = isMobile ? 5 : 8;
+        ds.maxBarThickness = isAnnualMonthly
+          ? (isMobile ? 22 : 34)
+          : (isDaily ? (isMobile ? 16 : 28) : (isMobile ? 14 : 22));
+      }
+
+      hyetoChartInstance.options.scales.x.ticks.font = {
+        family: 'Plus Jakarta Sans',
+        size: isMobile ? 9 : 11,
+        weight: '600'
+      };
+      hyetoChartInstance.options.scales.x.ticks.maxRotation = isAnnualMonthly
+        ? (isMobile ? 35 : 0)
+        : (isDaily ? (isMobile ? 45 : 0) : (isMobile ? 60 : 45));
+      hyetoChartInstance.options.scales.y.ticks.font = {
+        family: 'Plus Jakarta Sans',
+        size: isMobile ? 9.5 : 11
+      };
+      hyetoChartInstance.options.scales.y.title.font = {
+        family: 'Plus Jakarta Sans',
+        size: isMobile ? 10 : 11,
+        weight: '700'
+      };
+
+      hyetoChartInstance.update('none');
+    }
+
+    function switchView(viewName) {
+      activeView = viewName;
+      syncViewUI(viewName);
+
+      if (viewName === 'graph' && hyetoChartInstance) {
+        hyetoChartInstance.resize();
+        syncHyetoChartResponsiveStyle();
+      }
+
+      // Tutup filter island saat berpindah & simpan sesi
+      toggleFilterIsland(false);
+      saveDashboardSession();
+      lucide.createIcons();
+    }
+
+    // ========================================================
+    // FLOATING FILTER ISLAND CONTROLLER
+    // ========================================================
+    function positionFilterIsland() {
+      const island = document.getElementById('filterIsland');
+      const btnFilter = document.getElementById('btnNavFilter');
+      if (!island || !btnFilter) return;
+
+      if (window.innerWidth > 860) {
+        const rect = btnFilter.getBoundingClientRect();
+        const islandH = island.offsetHeight || 360;
+        const targetTop = Math.max(16, Math.min(rect.top - 100, window.innerHeight - islandH - 16));
+        island.style.top = `${targetTop}px`;
+        island.style.left = `${rect.right + 16}px`;
+      } else {
+        island.style.top = '';
+        island.style.left = '';
+      }
+    }
+
+    function toggleFilterIsland(forcedState, event) {
+      if (event && event.stopPropagation) {
+        event.stopPropagation();
+      }
+      const island = document.getElementById('filterIsland');
+      const btnFilter = document.getElementById('btnNavFilter');
+      if (!island || !btnFilter) return;
+
+      const isShowing = island.classList.contains('show');
+      const newState = (forcedState !== undefined) ? forcedState : !isShowing;
+
+      if (newState) {
+        positionFilterIsland();
+      }
+      island.classList.toggle('show', newState);
+      btnFilter.classList.toggle('active', newState);
+    }
+
+    function updateChartDisplayButtons() {
+      const btnHourly = document.getElementById('btnDisplayHourly');
+      const btnAccum = document.getElementById('btnDisplayAccum');
+      if (!btnHourly || !btnAccum) return;
+
+      if (currentFilterMode === 'daily') {
+        btnHourly.innerText = 'Intensitas (mm/jam)';
+        btnAccum.innerText = 'Akumulasi (mm)';
+      } else if (currentFilterMode === 'period' && selectedPeriodPreset === 'all_year') {
+        btnHourly.innerText = 'Rata-rata (mm/hari)';
+        btnAccum.innerText = 'Akumulasi (mm)';
+      } else {
+        btnHourly.innerText = 'Harian (mm/hari)';
+        btnAccum.innerText = 'Akumulasi (mm)';
+      }
+    }
+
+    function setFilterMode(mode) {
+      currentFilterMode = mode;
+      syncFilterModeUI(mode);
+
+      updateChartDisplayButtons();
+      applyFilterAndRender();
+      positionFilterIsland();
+    }
+
+    function setChartDisplay(type) {
+      currentChartDisplay = type;
+      syncChartDisplayUI(type);
+      applyFilterAndRender();
+    }
+
+    function onDateSelected(val) {
+      if (!rawDataset || !val) return;
+      selectedDate = val;
+      applyFilterAndRender();
+    }
+
+    function navigateDailyOffset(delta) {
+      if (!rawDataset) return;
+      const dates = rawDataset.daily_summary.map(d => d.date);
+      const idx = dates.indexOf(selectedDate);
+      const newIdx = idx + delta;
+      if (newIdx >= 0 && newIdx < dates.length) {
+        selectedDate = dates[newIdx];
+        document.getElementById('islandDateInput').value = selectedDate;
+        applyFilterAndRender();
+      }
+    }
+
+    function jumpToPeakDay() {
+      if (!rawDataset) return;
+      selectedDate = rawDataset.metadata.peak_day;
+      document.getElementById('islandDateInput').value = selectedDate;
+      applyFilterAndRender();
+    }
+
+    function setupMonthChecklist() {
+      const container = document.getElementById('islandMonthChecklist');
+      container.innerHTML = '';
+
+      rawDataset.months.forEach(m => {
+        const item = document.createElement('label');
+        item.className = 'month-pill-item checked';
+        item.id = `lbl_month_${m.key}`;
+        item.innerHTML = `
+          <input type="checkbox" value="${m.key}" checked onchange="onMonthCheckChange(this)">
+          <span>${m.name}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function onMonthCheckChange(cb) {
+      const mKey = cb.value;
+      const labelEl = document.getElementById(`lbl_month_${mKey}`);
+      if (cb.checked) {
+        selectedMonths.add(mKey);
+        labelEl.classList.add('checked');
+      } else {
+        selectedMonths.delete(mKey);
+        labelEl.classList.remove('checked');
+      }
+      applyFilterAndRender();
+    }
+
+    function toggleAllMonths(selectAll) {
+      selectedMonths.clear();
+      rawDataset.months.forEach(m => {
+        const cb = document.querySelector(`input[value="${m.key}"]`);
+        const lbl = document.getElementById(`lbl_month_${m.key}`);
+        if (cb && lbl) {
+          cb.checked = selectAll;
+          if (selectAll) {
+            selectedMonths.add(m.key);
+            lbl.classList.add('checked');
+          } else {
+            lbl.classList.remove('checked');
+          }
+        }
+      });
+      applyFilterAndRender();
+    }
+
+    function setPeriodPreset(preset, btnEl) {
+      selectedPeriodPreset = preset;
+      syncPeriodPresetUI(preset, btnEl);
+      updateChartDisplayButtons();
+      applyFilterAndRender();
+    }
+
+    // ========================================================
+    // FILTER PIPELINE & RENDERING
+    // ========================================================
+    function applyFilterAndRender(preserveTableScope = false) {
+      if (!rawDataset || !rawDataset.records) return;
+
+      if (!preserveTableScope) {
+        tableSelectedScope = 'peak';
+      }
+      saveDashboardSession();
+
+      let filteredRecords = [];
+      let periodLabel = '';
+      let isDaily = (currentFilterMode === 'daily');
+      let isAnnualMonthly = (currentFilterMode === 'period' && selectedPeriodPreset === 'all_year');
+
+      // 1. Filtering
+      if (currentFilterMode === 'daily') {
+        filteredRecords = rawDataset.records.filter(r => r.date === selectedDate);
+        const dt = new Date(selectedDate + 'T00:00:00');
+        periodLabel = dt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      } else if (currentFilterMode === 'months') {
+        filteredRecords = rawDataset.records.filter(r => selectedMonths.has(r.month));
+        const monthNames = rawDataset.months
+          .filter(m => selectedMonths.has(m.key))
+          .map(m => m.name);
+        periodLabel = monthNames.length > 0 ? `Bulan: ${monthNames.join(', ')}` : 'Tidak ada bulan dipilih';
+      } else if (currentFilterMode === 'period') {
+        const dates = rawDataset.daily_summary.map(d => d.date);
+        const datasetYear = dates[0].slice(0, 4) || '2026';
+        let startDate = dates[0];
+        let endDate = dates[dates.length - 1];
+
+        if (selectedPeriodPreset === '30days') {
+          const cutIdx = Math.max(0, dates.length - 30);
+          startDate = dates[cutIdx];
+          periodLabel = `30 Hari Terakhir (${startDate} s.d. ${endDate})`;
+          filteredRecords = rawDataset.records.filter(r => r.date >= startDate && r.date <= endDate);
+        } else if (selectedPeriodPreset === 'wet_season') {
+          periodLabel = `Musim Hujan (Jan - Mar ${datasetYear})`;
+          filteredRecords = rawDataset.records.filter(r => ['-01', '-02', '-03'].some(s => r.month.endsWith(s)));
+        } else if (selectedPeriodPreset === 'transition') {
+          periodLabel = `Pancaroba (Apr - Mei ${datasetYear})`;
+          filteredRecords = rawDataset.records.filter(r => ['-04', '-05'].some(s => r.month.endsWith(s)));
+        } else if (selectedPeriodPreset === 'dry_season') {
+          periodLabel = `Kemarau (Jun - Sep ${datasetYear})`;
+          filteredRecords = rawDataset.records.filter(r => ['-06', '-07', '-08', '-09'].some(s => r.month.endsWith(s)));
+        } else {
+          // Seluruh Tahun (Per Bulan Jan - Des)
+          periodLabel = `Seluruh Tahun ${datasetYear} (Jan - Des • Per Bulan)`;
+          filteredRecords = rawDataset.records;
+        }
+      }
+
+      // Update badge header
+      document.getElementById('activePeriodText').innerText = periodLabel;
+
+      if (filteredRecords.length === 0) {
+        currentFilteredRecords = [];
+        document.getElementById('chartEmptyOverlay').classList.add('active');
+        renderRightSidebarEmpty(periodLabel);
+        currentTableData = [];
+        const tbody = document.getElementById('lectureTableBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="padding: 24px; color: #94A3B8;">Tidak ada data untuk periode ini.</td></tr>';
+        return;
+      } else {
+        document.getElementById('chartEmptyOverlay').classList.remove('active');
+      }
+
+      currentFilteredRecords = filteredRecords;
+      currentPeriodLabel = periodLabel;
+      currentIsDaily = isDaily;
+
+      // 2. Render Sub-Components
+      renderRightSidebar(filteredRecords, periodLabel, isDaily);
+      renderHyetoChart(filteredRecords, periodLabel, isDaily, isAnnualMonthly);
+      renderLectureTable(filteredRecords, periodLabel, isDaily);
+      saveDashboardSession();
+      lucide.createIcons();
+    }
+
+    // Render Right Hero & Metrics Cards
+    function renderRightSidebar(records, periodLabel, isDaily) {
+      const totalRain = records.reduce((sum, r) => sum + r.rain, 0);
+
+      let maxIntensity = 0;
+      let peakHour = 0;
+      let peakDate = '';
+      let activeHours = 0;
+
+      records.forEach(r => {
+        if (r.rain > maxIntensity) {
+          maxIntensity = r.rain;
+          peakHour = r.hour;
+          peakDate = r.date;
+        }
+        if (r.rain >= 0.1) activeHours++;
+      });
+
+      const uniqueDays = new Set(records.map(r => r.date));
+      const totalDaysCount = uniqueDays.size;
+      const dailyAverage = totalDaysCount > 0 ? (totalRain / totalDaysCount) : 0;
+      const avgIntensity = activeHours > 0 ? (totalRain / activeHours) : 0;
+
+      const bmkgCategory = isDaily ? getBMKGCategory(totalRain) : getBMKGCategory(dailyAverage);
+
+      // Hero Card
+      document.getElementById('heroTotalRainVal').innerText = totalRain.toFixed(1);
+      document.getElementById('heroDateBadge').innerText = isDaily ? periodLabel : `${totalDaysCount} Hari`;
+      document.getElementById('heroRainPeriodLabel').innerText = isDaily ? 'Total Presipitasi Harian' : 'Total Akumulasi Periode';
+      
+      const bmkgEl = document.getElementById('heroBmkgBadge');
+      bmkgEl.innerText = bmkgCategory.label;
+      bmkgEl.style.color = bmkgCategory.color;
+
+      // Sub Metrics (2-Baris Anti-Collision Layout)
+      document.getElementById('subPeakIntensityVal').innerText = `${maxIntensity.toFixed(2)} mm/jam`;
+      const peakHourBadgeEl = document.getElementById('subPeakHourTime');
+      const peakHintEl = document.getElementById('subPeakHint');
+
+      if (maxIntensity > 0) {
+        if (isDaily) {
+          const nextH = (peakHour + 1) % 24;
+          peakHourBadgeEl.innerText = `${String(peakHour).padStart(2,'0')}:00 - ${String(nextH).padStart(2,'0')}:00 WIB`;
+          if (peakHintEl) peakHintEl.innerText = 'Pukul Puncak Hari Ini';
+        } else {
+          const dt = new Date(peakDate + 'T00:00:00');
+          const dStr = `${dt.getDate()} ${dt.toLocaleDateString('id-ID', { month: 'short' })}`;
+          peakHourBadgeEl.innerText = `${dStr} • Jam ${String(peakHour).padStart(2,'0')}:00`;
+          if (peakHintEl) peakHintEl.innerText = 'Puncak dalam Periode';
+        }
+      } else {
+        peakHourBadgeEl.innerText = isDaily ? 'Tidak Ada Hujan' : 'Kering';
+        if (peakHintEl) peakHintEl.innerText = 'Periode Kering';
+      }
+
+      if (isDaily) {
+        document.getElementById('subActiveTimeLabel').innerText = 'Durasi Hujan Aktif';
+        document.getElementById('subActiveDurationVal').innerText = `${activeHours} Jam`;
+        const activeHintEl = document.getElementById('subActiveHint');
+        if (activeHintEl) activeHintEl.innerText = 'Jam Hujan Terdeteksi';
+        document.getElementById('miniStat1Label').innerText = 'Rata-rata Intensitas';
+        document.getElementById('miniStat1Val').innerText = avgIntensity.toFixed(2);
+        document.getElementById('miniStat1Sub').innerText = 'mm/jam saat hujan';
+        document.getElementById('miniStat2Label').innerText = 'Total Observasi';
+        document.getElementById('miniStat2Val').innerText = '24';
+        document.getElementById('miniStat2Sub').innerText = 'Jam pengamatan';
+      } else {
+        document.getElementById('subActiveTimeLabel').innerText = 'Jam Hujan Aktif';
+        document.getElementById('subActiveDurationVal').innerText = `${activeHours} Jam`;
+        const activeHintEl = document.getElementById('subActiveHint');
+        if (activeHintEl) activeHintEl.innerText = 'Total Jam Presipitasi';
+        document.getElementById('miniStat1Label').innerText = 'Rata-rata Harian';
+        document.getElementById('miniStat1Val').innerText = dailyAverage.toFixed(2);
+        document.getElementById('miniStat1Sub').innerText = 'mm/hari rata-rata';
+        document.getElementById('miniStat2Label').innerText = 'Total Hari';
+        document.getElementById('miniStat2Val').innerText = totalDaysCount.toString();
+        document.getElementById('miniStat2Sub').innerText = 'Hari dalam periode';
+      }
+    }
+
+    function renderRightSidebarEmpty(label) {
+      document.getElementById('heroTotalRainVal').innerText = '-';
+      document.getElementById('heroDateBadge').innerText = label;
+      document.getElementById('heroBmkgBadge').innerText = '-';
+      document.getElementById('subPeakIntensityVal').innerText = '-';
+      document.getElementById('subPeakHourTime').innerText = '-';
+      document.getElementById('subActiveDurationVal').innerText = '-';
+      document.getElementById('miniStat1Val').innerText = '-';
+      document.getElementById('miniStat2Val').innerText = '-';
+    }
+
+    let hyetoPrevBarCount = 0;
+
+    function createHyetoBlueGradient(ctx, canvasEl) {
+      const wrapperEl = canvasEl ? canvasEl.parentElement : null;
+      const gradHeight = (wrapperEl && wrapperEl.clientHeight) ? wrapperEl.clientHeight : 320;
+      const grad = ctx.createLinearGradient(0, 0, 0, gradHeight);
+      grad.addColorStop(0, '#2563EB');
+      grad.addColorStop(1, '#93C5FD');
+      return grad;
+    }
+
+    // ========================================================
+    // CHART.JS HYETOGRAPH (BATANG WARNA BIRU SAJA)
+    // ========================================================
+    function renderHyetoChart(records, periodLabel, isDaily, isAnnualMonthly = false) {
+      const canvasEl = document.getElementById('hyetoCanvas');
+      const ctx = canvasEl.getContext('2d');
+      const isMobile = window.innerWidth <= 600;
+
+      let chartLabels = [];
+      let chartValues = [];
+      let legendText = '';
+      let titleMain = '';
+      let subtitleText = '';
+      let monthlyDetails = [];
+
+      if (isDaily) {
+        const hourlyMap = {};
+        records.forEach(r => hourlyMap[r.hour] = r.rain);
+
+        chartLabels = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2,'0')}:00`);
+
+        if (currentChartDisplay === 'hourly') {
+          chartValues = Array.from({ length: 24 }, (_, h) => parseFloat((hourlyMap[h] || 0.0).toFixed(2)));
+          legendText = 'Intensitas (mm/jam)';
+          titleMain = `Hyetograph Hujan Jam-jaman (${periodLabel})`;
+          subtitleText = 'Distribusi intensitas hujan 24 jam berbasis waktu lokal Indonesia (WIB)';
+        } else {
+          let sum = 0;
+          chartValues = Array.from({ length: 24 }, (_, h) => {
+            sum += (hourlyMap[h] || 0.0);
+            return parseFloat(sum.toFixed(2));
+          });
+          legendText = 'Total Akumulasi (mm)';
+          titleMain = `Akumulasi Curah Hujan Harian (${periodLabel})`;
+          subtitleText = 'Total tinggi hujan kumulatif sepanjang 24 jam';
+        }
+      } else if (isAnnualMonthly) {
+        const datasetYear = (records[0] && records[0].date) ? records[0].date.slice(0, 4) : '2026';
+        const monthBuckets = Array.from({ length: 12 }, () => ({ total: 0.0, daySet: new Set() }));
+
+        records.forEach(r => {
+          const monthStr = (r.month || r.date || '').slice(5, 7);
+          const mIdx = parseInt(monthStr, 10) - 1;
+          if (mIdx >= 0 && mIdx < 12) {
+            monthBuckets[mIdx].total += r.rain;
+            monthBuckets[mIdx].daySet.add(r.date);
+          }
+        });
+
+        monthlyDetails = monthBuckets.map((b, mIdx) => {
+          const daysCount = b.daySet.size;
+          const avgDaily = daysCount > 0 ? (b.total / daysCount) : 0.0;
+          return {
+            shortName: MONTH_SHORT_ID[mIdx],
+            fullName: MONTH_FULL_ID[mIdx],
+            year: datasetYear,
+            total: b.total,
+            avgDaily,
+            daysCount
+          };
+        });
+
+        chartLabels = MONTH_SHORT_ID.slice();
+
+        if (currentChartDisplay === 'hourly') {
+          chartValues = monthlyDetails.map(m => parseFloat(m.avgDaily.toFixed(2)));
+          legendText = 'Rata-rata Harian (mm/hari)';
+          titleMain = `Rata-rata Curah Hujan Bulanan (${datasetYear})`;
+          subtitleText = 'Rata-rata curah hujan harian per bulan (Januari – Desember, WIB)';
+        } else {
+          let sum = 0;
+          chartValues = monthlyDetails.map(m => {
+            sum += m.total;
+            return parseFloat(sum.toFixed(2));
+          });
+          legendText = 'Akumulasi Tahunan (mm)';
+          titleMain = `Akumulasi Curah Hujan Tahunan (${datasetYear})`;
+          subtitleText = 'Akumulasi total curah hujan sepanjang tahun (Januari – Desember)';
+        }
+      } else {
+        const dailyAgg = {};
+        records.forEach(r => {
+          dailyAgg[r.date] = (dailyAgg[r.date] || 0.0) + r.rain;
+        });
+
+        const sortedDays = Object.keys(dailyAgg).sort();
+        chartLabels = sortedDays.map(d => {
+          const dt = new Date(d + 'T00:00:00');
+          return `${dt.getDate()} ${dt.toLocaleDateString('id-ID', { month: 'short' })}`;
+        });
+
+        if (currentChartDisplay === 'hourly') {
+          chartValues = sortedDays.map(d => parseFloat(dailyAgg[d].toFixed(2)));
+          legendText = 'Curah Hujan Harian (mm/hari)';
+          titleMain = `Tren Curah Hujan Harian - ${periodLabel}`;
+          subtitleText = `Visualisasi curah hujan per hari (${sortedDays.length} hari)`;
+        } else {
+          let sum = 0;
+          chartValues = sortedDays.map(d => {
+            sum += dailyAgg[d];
+            return parseFloat(sum.toFixed(2));
+          });
+          legendText = 'Total Akumulasi Periode (mm)';
+          titleMain = `Akumulasi Curah Hujan Periode - ${periodLabel}`;
+          subtitleText = `Total akumulasi kumulatif selama periode terpilih`;
+        }
+      }
+
+      document.getElementById('chartDynamicTitle').innerText = titleMain;
+      document.getElementById('chartDynamicSubtitle').innerText = subtitleText;
+      document.getElementById('chartLegendText').innerText = legendText;
+
+      currentChartMeta = {
+        isDaily,
+        isAnnualMonthly,
+        legendText,
+        labels: chartLabels,
+        monthlyDetails
+      };
+
+      const blueGradient = createHyetoBlueGradient(ctx, canvasEl);
+      const targetBarThickness = isAnnualMonthly
+        ? (isMobile ? 22 : 34)
+        : (isDaily ? (isMobile ? 16 : 28) : (isMobile ? 14 : 22));
+      const targetMaxRotation = isAnnualMonthly
+        ? (isMobile ? 35 : 0)
+        : (isDaily ? (isMobile ? 45 : 0) : (isMobile ? 60 : 45));
+      const xTickSize = isMobile ? 9 : 11;
+      const yTickSize = isMobile ? 9.5 : 11;
+      const yTitleSize = isMobile ? 10 : 11;
+
+      if (!hyetoChartInstance) {
+        hyetoPrevBarCount = 0;
+
+        hyetoChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: chartLabels,
+            datasets: [{
+              label: legendText,
+              data: chartValues,
+              backgroundColor: blueGradient,
+              borderRadius: isMobile ? 5 : 8,
+              borderSkipped: false,
+              maxBarThickness: targetBarThickness
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+              duration: 950,
+              easing: 'easeOutQuart',
+              delay: (context) => {
+                if (context.type === 'data' && context.mode === 'default') {
+                  const count = chartValues.length || 1;
+                  const stepDelay = Math.max(4, Math.min(24, Math.floor(450 / count)));
+                  return context.dataIndex * stepDelay;
+                }
+                return 0;
+              }
+            },
+            animations: {
+              y: {
+                from: (animCtx) => {
+                  if (
+                    animCtx.type === 'data' &&
+                    typeof animCtx.dataIndex === 'number' &&
+                    animCtx.dataIndex >= hyetoPrevBarCount &&
+                    animCtx.chart &&
+                    animCtx.chart.scales &&
+                    animCtx.chart.scales.y
+                  ) {
+                    return animCtx.chart.scales.y.getPixelForValue(0);
+                  }
+                  return undefined;
+                }
+              }
+            },
+            interaction: {
+              mode: 'index',
+              intersect: false
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.92)',
+                padding: 12,
+                titleFont: { family: 'Plus Jakarta Sans', size: 13, weight: '700' },
+                bodyFont: { family: 'Plus Jakarta Sans', size: 12, weight: '600' },
+                cornerRadius: 12,
+                callbacks: {
+                  title: function(items) {
+                    const idx = items[0].dataIndex;
+                    if (currentChartMeta.isDaily) {
+                      const nextH = (idx + 1) % 24;
+                      return `Pukul ${String(idx).padStart(2,'0')}:00 - ${String(nextH).padStart(2,'0')}:00 WIB`;
+                    } else if (currentChartMeta.isAnnualMonthly) {
+                      const md = currentChartMeta.monthlyDetails[idx];
+                      return md ? `Bulan ${md.fullName} ${md.year}` : `Bulan: ${currentChartMeta.labels[idx]}`;
+                    } else {
+                      return `Tanggal: ${currentChartMeta.labels[idx]}`;
+                    }
+                  },
+                  label: function(item) {
+                    const lt = currentChartMeta.legendText;
+                    const unit = lt.includes('mm/jam') ? 'mm/jam' : (lt.includes('mm/hari') ? 'mm/hari' : 'mm');
+                    return ` ${lt}: ${item.parsed.y.toFixed(2)} ${unit}`;
+                  },
+                  afterBody: function(items) {
+                    if (!currentChartMeta.isAnnualMonthly) return [];
+                    const md = currentChartMeta.monthlyDetails[items[0].dataIndex];
+                    if (!md) return [];
+                    if (md.daysCount === 0) return ['Belum ada data observasi'];
+                    return [
+                      `Total Bulan: ${md.total.toFixed(1)} mm`,
+                      `Rata-rata Harian: ${md.avgDaily.toFixed(2)} mm/hari (${md.daysCount} hari)`
+                    ];
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: {
+                  font: { family: 'Plus Jakarta Sans', size: xTickSize, weight: '600' },
+                  color: '#64748B',
+                  maxRotation: targetMaxRotation,
+                  autoSkip: !isAnnualMonthly
+                }
+              },
+              y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(226, 232, 240, 0.7)' },
+                ticks: {
+                  font: { family: 'Plus Jakarta Sans', size: yTickSize },
+                  color: '#64748B'
+                },
+                title: {
+                  display: true,
+                  text: legendText,
+                  color: '#2563EB',
+                  font: { family: 'Plus Jakarta Sans', size: yTitleSize, weight: '700' }
+                }
+              }
+            }
+          }
+        });
+
+        hyetoPrevBarCount = chartValues.length;
+      } else {
+        // Update data pada instance yang ada agar batang bertransisi mulus (naik/turun/diam)
+        // tanpa reload dari bawah (y=0)
+        hyetoChartInstance.data.labels = chartLabels;
+        const ds = hyetoChartInstance.data.datasets[0];
+        ds.label = legendText;
+        ds.data = chartValues;
+        ds.backgroundColor = blueGradient;
+        ds.borderRadius = isMobile ? 5 : 8;
+        ds.maxBarThickness = targetBarThickness;
+
+        hyetoChartInstance.options.animation = {
+          duration: 550,
+          easing: 'easeOutCubic',
+          delay: 0
+        };
+        hyetoChartInstance.options.scales.x.ticks.font = { family: 'Plus Jakarta Sans', size: xTickSize, weight: '600' };
+        hyetoChartInstance.options.scales.x.ticks.maxRotation = targetMaxRotation;
+        hyetoChartInstance.options.scales.x.ticks.autoSkip = !isAnnualMonthly;
+        hyetoChartInstance.options.scales.y.ticks.font = { family: 'Plus Jakarta Sans', size: yTickSize };
+        hyetoChartInstance.options.scales.y.title.text = legendText;
+        hyetoChartInstance.options.scales.y.title.font = { family: 'Plus Jakarta Sans', size: yTitleSize, weight: '700' };
+
+        hyetoChartInstance.update();
+        hyetoPrevBarCount = chartValues.length;
+      }
+    }
+
+    // ========================================================
+    // TABEL HIDROLOGI (PERSIS FORMAT FOTO 3 / SLIDE KULIAH)
+    // ========================================================
+    function onTableDayChanged(newScope) {
+      tableSelectedScope = newScope;
+      renderLectureTable(currentFilteredRecords, currentPeriodLabel, currentIsDaily);
+      saveDashboardSession();
+      lucide.createIcons();
+    }
+
+    function renderLectureTable(records, periodLabel, isDaily) {
+      const tbody = document.getElementById('lectureTableBody');
+      tbody.innerHTML = '';
+      currentTableData = [];
+
+      const selectorWrap = document.getElementById('tableDaySelectorWrap');
+      const selectEl = document.getElementById('tableDaySelect');
+
+      let totalRain = 0;
+      let totalDuration = 0;
+      let maxIntensity = 0;
+
+      if (isDaily) {
+        selectorWrap.style.display = 'none';
+        document.getElementById('thColTime').innerText = 'Waktu (pukul)';
+        document.getElementById('lectureSlideSubtitle').innerText = `Format Standar Kuliah Teknik Hidrologi (${periodLabel})`;
+
+        const hourlyMap = {};
+        records.forEach(r => hourlyMap[r.hour] = r.rain);
+
+        let maxIdx = -1;
+        for (let h = 0; h < 24; h++) {
+          const r = hourlyMap[h] || 0.0;
+          if (r > maxIntensity) {
+            maxIntensity = r;
+            maxIdx = h;
+          }
+        }
+
+        const rowsHtml = [];
+        for (let h = 0; h < 24; h++) {
+          const nextH = (h + 1) % 24;
+          const timeSlot = `${String(h).padStart(2,'0')} - ${String(nextH).padStart(2,'0')}`;
+          const rainMm = hourlyMap[h] || 0.0;
+          const duration = 1.0; // Selalu 1,0 jam sesuai rumus intensitas per jam
+          const intensity = rainMm / duration;
+          const isPeak = (h === maxIdx && maxIntensity >= 0.05);
+
+          totalRain += rainMm;
+          totalDuration += duration;
+
+          currentTableData.push({
+            no: h + 1,
+            time: timeSlot,
+            rain: rainMm,
+            duration: duration,
+            intensity: intensity,
+            isPeak: isPeak
+          });
+
+          rowsHtml.push(`
+            <tr>
+              <td>${h + 1}</td>
+              <td style="font-weight: 600;">${timeSlot}</td>
+              <td class="${isPeak ? 'peak-row' : ''}">${rainMm.toFixed(1).replace('.', ',')}</td>
+              <td>${duration.toFixed(1).replace('.', ',')}</td>
+              <td class="${isPeak ? 'peak-row' : ''}">${intensity.toFixed(1).replace('.', ',')}</td>
+            </tr>
+          `);
+        }
+        tbody.innerHTML = rowsHtml.join('');
+      } else {
+        // Multi-day filter: Tetap gunakan format jam-jaman (Lamanya = 1,0 jam)
+        selectorWrap.style.display = 'flex';
+
+        const dailyStats = {};
+        let maxPeriodHourI = -1;
+        let maxPeriodHourDate = '';
+        let activeRainRecords = [];
+
+        records.forEach(r => {
+          if (!dailyStats[r.date]) {
+            dailyStats[r.date] = { date: r.date, sum: 0, maxI: 0 };
+          }
+          dailyStats[r.date].sum += r.rain;
+          if (r.rain > dailyStats[r.date].maxI) {
+            dailyStats[r.date].maxI = r.rain;
+          }
+          if (r.rain > maxPeriodHourI) {
+            maxPeriodHourI = r.rain;
+            maxPeriodHourDate = r.date;
+          }
+          if (r.rain >= 0.05) {
+            activeRainRecords.push(r);
+          }
+        });
+
+        // Build dropdown options dynamically
+        const sortedRainDays = Object.values(dailyStats)
+          .filter(d => d.sum >= 0.05)
+          .sort((a, b) => b.sum - a.sum)
+          .slice(0, 40);
+
+        let optsHtml = `<option value="peak">⚡ Hari Puncak I-maks: ${maxPeriodHourDate} (${maxPeriodHourI.toFixed(1)} mm/jam)</option>`;
+        optsHtml += `<option value="all_active">📋 Semua Jam Hujan Aktif (${activeRainRecords.length} jam)</option>`;
+        sortedRainDays.forEach(d => {
+          optsHtml += `<option value="${d.date}">📅 ${d.date} (Total ${d.sum.toFixed(1)} mm • Maks ${d.maxI.toFixed(1)})</option>`;
+        });
+
+        selectEl.innerHTML = optsHtml;
+        if (['peak', 'all_active'].includes(tableSelectedScope) || dailyStats[tableSelectedScope]) {
+          selectEl.value = tableSelectedScope;
+        } else {
+          tableSelectedScope = 'peak';
+          selectEl.value = 'peak';
+        }
+
+        if (tableSelectedScope === 'all_active') {
+          document.getElementById('thColTime').innerText = 'Waktu (WIB)';
+          document.getElementById('lectureSlideSubtitle').innerText = `Perhitungan Intensitas Hujan Tiap Jam Aktif (Periode: ${periodLabel})`;
+
+          const rowsToShow = activeRainRecords.length > 0 ? activeRainRecords : records.slice(0, 24);
+          rowsToShow.forEach(r => {
+            if (r.rain > maxIntensity) maxIntensity = r.rain;
+          });
+
+          const rowsHtml = [];
+          rowsToShow.forEach((r, idx) => {
+            const nextH = (r.hour + 1) % 24;
+            const timeSlot = `${r.date} (${String(r.hour).padStart(2,'0')} - ${String(nextH).padStart(2,'0')})`;
+            const rainMm = r.rain;
+            const duration = 1.0; // Selalu 1,0 jam
+            const intensity = rainMm / duration;
+            const isPeak = (rainMm === maxIntensity && maxIntensity >= 0.05);
+
+            totalRain += rainMm;
+            totalDuration += duration;
+
+            currentTableData.push({
+              no: idx + 1,
+              time: timeSlot,
+              rain: rainMm,
+              duration: duration,
+              intensity: intensity,
+              isPeak: isPeak
+            });
+
+            rowsHtml.push(`
+              <tr>
+                <td>${idx + 1}</td>
+                <td style="font-weight: 600;">${timeSlot}</td>
+                <td class="${isPeak ? 'peak-row' : ''}">${rainMm.toFixed(1).replace('.', ',')}</td>
+                <td>${duration.toFixed(1).replace('.', ',')}</td>
+                <td class="${isPeak ? 'peak-row' : ''}">${intensity.toFixed(1).replace('.', ',')}</td>
+              </tr>
+            `);
+          });
+          tbody.innerHTML = rowsHtml.join('');
+        } else {
+          // Hari Puncak atau Tanggal Spesifik (24 Jam, Lamanya = 1,0)
+          const targetDate = (tableSelectedScope === 'peak') ? maxPeriodHourDate : tableSelectedScope;
+          const dayRecords = records.filter(r => r.date === targetDate);
+
+          document.getElementById('thColTime').innerText = 'Waktu (pukul)';
+          document.getElementById('lectureSlideSubtitle').innerText = `Perhitungan Intensitas Per Jam — Tanggal ${targetDate} (Periode: ${periodLabel})`;
+
+          const hourlyMap = {};
+          dayRecords.forEach(r => hourlyMap[r.hour] = r.rain);
+
+          let maxIdx = -1;
+          for (let h = 0; h < 24; h++) {
+            const r = hourlyMap[h] || 0.0;
+            if (r > maxIntensity) {
+              maxIntensity = r;
+              maxIdx = h;
+            }
+          }
+
+          const rowsHtml = [];
+          for (let h = 0; h < 24; h++) {
+            const nextH = (h + 1) % 24;
+            const timeSlot = `${String(h).padStart(2,'0')} - ${String(nextH).padStart(2,'0')}`;
+            const rainMm = hourlyMap[h] || 0.0;
+            const duration = 1.0; // Selalu 1,0 jam
+            const intensity = rainMm / duration;
+            const isPeak = (h === maxIdx && maxIntensity >= 0.05);
+
+            totalRain += rainMm;
+            totalDuration += duration;
+
+            currentTableData.push({
+              no: h + 1,
+              time: timeSlot,
+              rain: rainMm,
+              duration: duration,
+              intensity: intensity,
+              isPeak: isPeak
+            });
+
+            rowsHtml.push(`
+              <tr>
+                <td>${h + 1}</td>
+                <td style="font-weight: 600;">${timeSlot}</td>
+                <td class="${isPeak ? 'peak-row' : ''}">${rainMm.toFixed(1).replace('.', ',')}</td>
+                <td>${duration.toFixed(1).replace('.', ',')}</td>
+                <td class="${isPeak ? 'peak-row' : ''}">${intensity.toFixed(1).replace('.', ',')}</td>
+              </tr>
+            `);
+          }
+          tbody.innerHTML = rowsHtml.join('');
+        }
+      }
+
+      // Update Footer (Sinkron 100% dengan baris tabel & I-maks)
+      document.getElementById('footTotalRainfall').innerText = `${totalRain.toFixed(1).replace('.', ',')} mm`;
+      document.getElementById('footDuration').innerText = `${totalDuration.toFixed(1).replace('.', ',')} jam`;
+      document.getElementById('footMaxIntensity').innerText = `${maxIntensity.toFixed(1).replace('.', ',')} mm/jam`;
+    }
+
+    // ========================================================
+    // UNDUH CSV & EXCEL SESUAI FILTER
+    // ========================================================
+    function downloadCurrentCSV(fromSidebar = false) {
+      let exportData = currentTableData;
+      if (fromSidebar && activeView === 'graph' && !currentIsDaily && currentFilteredRecords.length > 0) {
+        exportData = currentFilteredRecords.map((r, idx) => {
+          const nextH = (r.hour + 1) % 24;
+          return {
+            no: idx + 1,
+            time: `${r.date} ${String(r.hour).padStart(2,'0')}:00 - ${String(nextH).padStart(2,'0')}:00`,
+            rain: r.rain,
+            duration: 1.0,
+            intensity: r.rain
+          };
+        });
+      }
+
+      if (!exportData || exportData.length === 0) {
+        showToast('Gagal', 'Tidak ada data untuk diunduh.', 'error');
+        return;
+      }
+
+      let csv = "No,Waktu_WIB,Tinggi_Hujan_mm,Lamanya_jam,Intensitas_mm_jam\n";
+      let totalRain = 0;
+      let totalDuration = 0;
+      let maxI = 0;
+
+      exportData.forEach(r => {
+        csv += `${r.no},"${r.time}",${r.rain.toFixed(3)},${r.duration.toFixed(1)},${r.intensity.toFixed(3)}\n`;
+        totalRain += r.rain;
+        totalDuration += r.duration;
+        if (r.intensity > maxI) maxI = r.intensity;
+      });
+
+      csv += `TOTAL,-,${totalRain.toFixed(3)},${totalDuration.toFixed(1)},${maxI.toFixed(3)}\n`;
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tabel_hidrologi_semarang_${currentFilterMode}_${selectedDate || 'periode'}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      showToast('Unduhan Berhasil', 'Data CSV sesuai filter berhasil diunduh.', 'success');
+    }
+
+    function downloadCurrentExcel() {
+      if (!currentTableData || currentTableData.length === 0) {
+        showToast('Gagal', 'Tidak ada data untuk diunduh.', 'error');
+        return;
+      }
+
+      let tableHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+      <head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Tabel Hidrologi Semarang</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
+      <body>
+      <table border="1">
+        <thead>
+          <tr style="background:#2563EB; color:#FFFFFF; font-weight:bold;">
+            <th>No.</th>
+            <th>Waktu (pukul)</th>
+            <th>Tinggi hujan (mm)</th>
+            <th>Lamanya (jam)</th>
+            <th>Intensitas (mm/jam)</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      let totalRain = 0;
+      let maxI = 0;
+
+      currentTableData.forEach(r => {
+        tableHtml += `<tr>
+          <td>${r.no}</td>
+          <td>${r.time}</td>
+          <td>${r.rain.toFixed(1).replace('.', ',')}</td>
+          <td>${r.duration.toFixed(1).replace('.', ',')}</td>
+          <td>${r.intensity.toFixed(1).replace('.', ',')}</td>
+        </tr>`;
+        totalRain += r.rain;
+        if (r.intensity > maxI) maxI = r.intensity;
+      });
+
+      tableHtml += `<tr style="background:#F1F5F9; font-weight:bold;">
+        <td colspan="2">TOTAL &amp; I-MAKS</td>
+        <td>${totalRain.toFixed(1).replace('.', ',')}</td>
+        <td>-</td>
+        <td>${maxI.toFixed(1).replace('.', ',')}</td>
+      </tr>
+      </tbody></table></body></html>`;
+
+      const blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tabel_hidrologi_semarang_${currentFilterMode}_${selectedDate || 'periode'}.xls`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      showToast('Unduhan Berhasil', 'Tabel hidrologi Excel (.xls) berhasil diunduh.', 'success');
+    }
+
+    // ========================================================
+    // UPLOAD MODAL & PYTHON ENGINE PROCESSING
+    // ========================================================
+    function openUploadModal() {
+      document.getElementById('uploadModal').classList.add('show');
+      document.getElementById('uploadProgressArea').classList.remove('active');
+      document.getElementById('ncDropZone').style.display = 'flex';
+      lucide.createIcons();
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadModal').classList.remove('show');
+    }
+
+    const dropZone = document.getElementById('ncDropZone');
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag-over');
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      if (e.dataTransfer.files.length > 0) {
+        uploadFileToPython(e.dataTransfer.files[0]);
+      }
+    });
+
+    function handleFilePicked(files) {
+      if (files && files.length > 0) {
+        uploadFileToPython(files[0]);
+      }
+    }
+
+    async function uploadFileToPython(file) {
+      const dropZone = document.getElementById('ncDropZone');
+      const progressArea = document.getElementById('uploadProgressArea');
+      const statusText = document.getElementById('uploadStatusText');
+
+      dropZone.style.display = 'none';
+      progressArea.classList.add('active');
+      statusText.innerText = `Mengunggah & memproses '${file.name}' dengan Python...`;
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await res.json();
+
+        if (res.ok && result.status === 'success') {
+          closeUploadModal();
+          showToast('Upload Berhasil', result.message || 'Dataset .nc berhasil diproses oleh Python!', 'success');
+          // Reset sesi ke default dataset baru lalu muat ulang
+          clearDashboardSession();
+          activeView = 'graph';
+          currentFilterMode = 'daily';
+          currentChartDisplay = 'hourly';
+          selectedPeriodPreset = '30days';
+          tableSelectedScope = 'peak';
+          syncViewUI(activeView);
+          syncFilterModeUI(currentFilterMode);
+          syncChartDisplayUI(currentChartDisplay);
+          syncPeriodPresetUI(selectedPeriodPreset);
+          await initDashboardData();
+        } else {
+          throw new Error(result.message || 'Gagal memproses file di backend.');
+        }
+      } catch (err) {
+        alert('Terjadi kesalahan saat upload file: ' + err.message);
+        dropZone.style.display = 'flex';
+        progressArea.classList.remove('active');
+      }
+    }
+
+    // Toast Notification Utility
+    function showToast(title, msg, type = 'success') {
+      const toast = document.getElementById('toastNotice');
+      toast.className = `toast-notification toast-${type} show`;
+      document.getElementById('toastTitle').innerText = title;
+      document.getElementById('toastMsg').innerText = msg;
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+
+    // ========================================================
+    // BOOTSTRAP INITIALIZATION & EVENT LISTENERS
+    // ========================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      initDashboardData();
+
+      // Klik di luar island menutup filter island secara otomatis (Gambar 2)
+      const island = document.getElementById('filterIsland');
+      if (island) {
+        island.addEventListener('click', (e) => {
+          e.stopPropagation();
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        const island = document.getElementById('filterIsland');
+        const btnFilter = document.getElementById('btnNavFilter');
+        if (island && island.classList.contains('show')) {
+          if (!island.contains(e.target) && !btnFilter.contains(e.target)) {
+            toggleFilterIsland(false);
+          }
+        }
+      });
+
+      // Tombol Escape menutup popup / island
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          toggleFilterIsland(false);
+          closeUploadModal();
+        }
+      });
+
+      // Sinkronisasi layout island & font/ukuran grafik saat resize desktop <-> mobile
+      let resizeTimer = null;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          const islandEl = document.getElementById('filterIsland');
+          if (islandEl && islandEl.classList.contains('show')) {
+            positionFilterIsland();
+          }
+          syncHyetoChartResponsiveStyle();
+        }, 120);
+      });
+    });
+  </script>
+</body>
+</html>
