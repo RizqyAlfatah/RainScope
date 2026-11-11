@@ -1,4 +1,5 @@
 # RainScope — Dashboard Curah Hujan & Hidrologi ERA5 Semarang
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1068ca63-ae09-498e-a209-c56424b59056" />
 
 Aplikasi dashboard interaktif berbasis Python + HTML untuk menganalisis data curah hujan ERA5 Copernicus (NetCDF `.nc` / `.zip`) dalam zona waktu WIB (`UTC+7`) di **http://localhost:4000**.
 
