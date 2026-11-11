@@ -592,12 +592,154 @@
       }
     }
 
-    /* Visualization Card */
-    .visualization-card {
-      padding: 24px;
+    /* ========================================================
+       STRIP CUACA HARIAN (ATAS GRAFIK - MIRIP GAMBAR 4)
+       ======================================================== */
+    .daily-weather-strip-card {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .strip-nav-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .strip-nav-btn:hover:not(:disabled) {
+      background: var(--accent-blue);
+      color: #FFFFFF;
+      border-color: var(--accent-blue);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.22);
+    }
+
+    .strip-nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .daily-weather-strip-track {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scroll-snap-type: x proximity;
+      padding: 2px;
+      cursor: grab;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      user-select: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .daily-weather-strip-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .daily-weather-strip-track.dragging {
+      cursor: grabbing;
+      scroll-behavior: auto;
+      scroll-snap-type: none;
+    }
+
+    .day-strip-item {
+      flex: 0 0 calc((100% - 48px) / 7);
+      min-width: 68px;
+      border-radius: 16px;
+      padding: 10px 6px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 3px;
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      scroll-snap-align: center;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .day-strip-item:hover {
+      background: #F8FAFC;
+      border-color: rgba(226, 232, 240, 0.9);
+      transform: translateY(-2px);
+    }
+
+    .day-strip-item.active {
+      background: linear-gradient(180deg, #EFF6FF 0%, #E0F2FE 100%);
+      border-color: rgba(59, 130, 246, 0.28);
+      box-shadow: 0 6px 14px -4px rgba(37, 99, 235, 0.18);
+    }
+
+    .day-strip-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      line-height: 1.15;
+    }
+
+    .day-strip-item.active .day-strip-name {
+      color: var(--accent-blue);
+    }
+
+    .day-strip-date {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-light);
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .day-strip-icon {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 2px 0;
+      flex-shrink: 0;
+    }
+
+    .day-strip-icon svg {
+      width: 32px;
+      height: 32px;
+      filter: drop-shadow(0 3px 5px rgba(15, 23, 42, 0.08));
+    }
+
+    .day-strip-val {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-main);
+      white-space: nowrap;
+      line-height: 1.1;
+    }
+
+    .day-strip-item.active .day-strip-val {
+      color: var(--accent-blue);
+    }
+
+    /* Visualization Card */
+    .visualization-card {
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
       position: relative;
     }
 
@@ -637,7 +779,7 @@
     .chart-canvas-wrapper {
       position: relative;
       width: 100%;
-      height: 340px;
+      height: 315px;
     }
 
     /* ========================================================
@@ -1334,6 +1476,17 @@
         padding: 16px;
       }
 
+      .daily-weather-strip-card {
+        padding: 10px;
+        gap: 6px;
+      }
+
+      .day-strip-item {
+        flex: 0 0 calc((100% - 32px) / 5);
+        min-width: 60px;
+        padding: 8px 4px;
+      }
+
       .chart-canvas-wrapper {
         height: 260px;
       }
@@ -1387,6 +1540,51 @@
 
       .chart-canvas-wrapper {
         height: 230px;
+      }
+
+      .daily-weather-strip-card {
+        padding: 8px;
+        gap: 4px;
+        border-radius: 18px;
+      }
+
+      .strip-nav-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 9px;
+      }
+
+      .daily-weather-strip-track {
+        gap: 6px;
+      }
+
+      .day-strip-item {
+        flex: 0 0 calc((100% - 18px) / 4);
+        min-width: 58px;
+        padding: 7px 3px;
+        border-radius: 12px;
+      }
+
+      .day-strip-name {
+        font-size: 11px;
+      }
+
+      .day-strip-date {
+        font-size: 9.5px;
+      }
+
+      .day-strip-icon {
+        width: 26px;
+        height: 26px;
+      }
+
+      .day-strip-icon svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      .day-strip-val {
+        font-size: 10.5px;
       }
 
       .chart-title-group h3 {
@@ -1697,6 +1895,19 @@
 
       <!-- VIEW 1: GRAFIK CURAH HUJAN (HYETOGRAPH BATANG BIRU) -->
       <div class="view-container active" id="viewGraph">
+        <!-- Strip Cuaca Harian Per Hari (Atas Grafik, seperti Gambar 4) -->
+        <section class="clay-card daily-weather-strip-card" id="dailyWeatherStripCard" aria-label="Ringkasan Cuaca Harian">
+          <button type="button" class="strip-nav-btn" id="btnStripPrev" title="Geser ke hari sebelumnya" onclick="shiftStripDay(-1)">
+            <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+          </button>
+          <div class="daily-weather-strip-track" id="dailyWeatherStripTrack">
+            <!-- Dynamically populated per day -->
+          </div>
+          <button type="button" class="strip-nav-btn" id="btnStripNext" title="Geser ke hari berikutnya" onclick="shiftStripDay(1)">
+            <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+          </button>
+        </section>
+
         <section class="clay-card visualization-card">
           <div class="chart-header">
             <div class="chart-title-group">
@@ -1754,7 +1965,7 @@
                   <th id="thColTime" class="col-time">Waktu (pukul)</th>
                   <th>Tinggi hujan (mm)</th>
                   <th>Lamanya (jam)</th>
-                  <th>Intensitas (mm/jam)</th>
+                  <th id="thColIntensity">Intensitas (mm/jam)</th>
                 </tr>
               </thead>
               <tbody id="lectureTableBody">
@@ -1899,6 +2110,308 @@
 
     const MONTH_SHORT_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     const MONTH_FULL_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const DAY_SHORT_ID = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    const DAY_FULL_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+    let renderedStripDatesKey = '';
+    let stripSuppressClick = false;
+    let stripProgrammaticUntil = 0;
+    let stripScrollCommitTimer = null;
+
+    function getStripWeatherCondition(totalMm, maxIntensityMm) {
+      if (totalMm < 0.1) {
+        return {
+          label: 'Cerah',
+          svg: `<svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <circle cx="18" cy="18" r="7.5" fill="#F59E0B"/>
+            <circle cx="18" cy="18" r="5.5" fill="#FBBF24"/>
+            <g stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round">
+              <line x1="18" y1="3.5" x2="18" y2="6.5"/>
+              <line x1="18" y1="29.5" x2="18" y2="32.5"/>
+              <line x1="3.5" y1="18" x2="6.5" y2="18"/>
+              <line x1="29.5" y1="18" x2="32.5" y2="18"/>
+              <line x1="7.8" y1="7.8" x2="10" y2="10"/>
+              <line x1="26" y1="26" x2="28.2" y2="28.2"/>
+              <line x1="28.2" y1="7.8" x2="26" y2="10"/>
+              <line x1="10" y1="26" x2="7.8" y2="28.2"/>
+            </g>
+          </svg>`
+        };
+      }
+      if (totalMm < 0.5) {
+        return {
+          label: 'Cerah Berawan',
+          svg: `<svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <circle cx="24" cy="12.5" r="5.5" fill="#F59E0B"/>
+            <circle cx="24" cy="12.5" r="4" fill="#FBBF24"/>
+            <path d="M10.5 26.5H25.2C27.8 26.5 29.8 24.6 29.8 22.1C29.8 19.7 28 17.8 25.6 17.7C24.8 14.3 21.8 11.8 18.2 11.8C14.1 11.8 10.8 15 10.7 19C8.2 19.3 6.2 21.3 6.2 23.9C6.2 25.4 7.7 26.5 10.5 26.5Z" fill="#CBD5E1"/>
+            <path d="M10.5 26H25C27.4 26 29.3 24.2 29.3 21.9C29.3 19.7 27.6 17.9 25.4 17.8C24.6 14.6 21.7 12.2 18.3 12.2C14.4 12.2 11.2 15.2 11.1 19C8.7 19.3 6.8 21.2 6.8 23.6C6.8 25 8.1 26 10.5 26Z" fill="#E2E8F0"/>
+          </svg>`
+        };
+      }
+      if (totalMm < 5.0 && maxIntensityMm < 2.0) {
+        return {
+          label: 'Hujan Ringan',
+          svg: `<svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <circle cx="24" cy="11" r="4.8" fill="#FBBF24"/>
+            <path d="M10.5 23H25C27.5 23 29.5 21.1 29.5 18.7C29.5 16.4 27.8 14.6 25.5 14.5C24.7 11.3 21.8 9 18.3 9C14.3 9 11.1 12 11 15.8C8.6 16.1 6.7 18 6.7 20.4C6.7 21.9 8.1 23 10.5 23Z" fill="#93C5FD"/>
+            <path d="M12.5 26.5L11.3 29.8M18.5 26.5L17.3 29.8M24.5 26.5L23.3 29.8" stroke="#3B82F6" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>`
+        };
+      }
+      if (totalMm < 20.0 && maxIntensityMm < 4.0) {
+        return {
+          label: 'Hujan Sedang',
+          svg: `<svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <path d="M10.2 22.8H25.4C28 22.8 30 20.9 30 18.4C30 16 28.2 14.1 25.8 14C25 10.6 22 8.2 18.3 8.2C14.2 8.2 10.9 11.3 10.8 15.3C8.2 15.6 6.2 17.6 6.2 20.2C6.2 21.7 7.6 22.8 10.2 22.8Z" fill="#60A5FA"/>
+            <path d="M11.5 26L9.8 30.8M17 26L15.3 30.8M22.5 26L20.8 30.8M27.2 26L25.8 29.8" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>`
+        };
+      }
+      return {
+        label: 'Hujan Lebat / Badai',
+        svg: `<svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
+          <path d="M10 21.8H25.6C28.2 21.8 30.2 19.9 30.2 17.4C30.2 15 28.4 13.1 26 13C25.2 9.6 22.1 7.2 18.4 7.2C14.3 7.2 11 10.3 10.9 14.3C8.3 14.6 6.3 16.6 6.3 19.2C6.3 20.7 7.7 21.8 10 21.8Z" fill="#1D4ED8"/>
+          <path d="M19.2 19L15.6 25.6H18.9L17.4 31.2L22.5 24.1H19.1L20.8 19H19.2Z" fill="#FBBF24"/>
+          <path d="M11 25L9.6 29.4M25.5 25L24.1 29.4" stroke="#38BDF8" stroke-width="2.1" stroke-linecap="round"/>
+        </svg>`
+      };
+    }
+
+    function getStripDatesList(records, isDaily) {
+      if (!rawDataset || !Array.isArray(rawDataset.daily_summary)) return [];
+      const summaryMap = new Map(rawDataset.daily_summary.map(d => [d.date, d]));
+
+      if (isDaily) {
+        const monthPrefix = (selectedDate || '').slice(0, 7);
+        const monthDays = rawDataset.daily_summary.filter(d => d.date.startsWith(monthPrefix));
+        return monthDays.length > 0 ? monthDays : rawDataset.daily_summary;
+      }
+
+      const uniqueDates = Array.from(new Set((records || []).map(r => r.date))).sort();
+      return uniqueDates.map(dt => summaryMap.get(dt)).filter(Boolean);
+    }
+
+    function scrollStripToDate(dateStr, smooth = true) {
+      const track = document.getElementById('dailyWeatherStripTrack');
+      if (!track || !dateStr) return;
+      const activeEl = track.querySelector(`.day-strip-item[data-date="${dateStr}"]`);
+      if (!activeEl) return;
+      const targetLeft = Math.max(0, activeEl.offsetLeft - (track.clientWidth / 2) + (activeEl.offsetWidth / 2));
+      stripProgrammaticUntil = Date.now() + 450;
+      track.scrollTo({ left: targetLeft, behavior: smooth ? 'smooth' : 'auto' });
+    }
+
+    function renderDailyWeatherStrip(records, isDaily, options = {}) {
+      const card = document.getElementById('dailyWeatherStripCard');
+      const track = document.getElementById('dailyWeatherStripTrack');
+      const btnPrev = document.getElementById('btnStripPrev');
+      const btnNext = document.getElementById('btnStripNext');
+      if (!card || !track) return;
+
+      const stripDates = getStripDatesList(records, isDaily);
+      if (stripDates.length === 0) {
+        card.style.display = 'none';
+        track.innerHTML = '';
+        renderedStripDatesKey = '';
+        return;
+      }
+
+      card.style.display = 'flex';
+      const newKey = stripDates.map(d => d.date).join('|');
+      const activeDate = isDaily ? selectedDate : '';
+
+      if (newKey !== renderedStripDatesKey) {
+        track.innerHTML = stripDates.map(d => {
+          const dt = new Date(d.date + 'T00:00:00');
+          const dayShort = DAY_SHORT_ID[dt.getDay()];
+          const dayFull = DAY_FULL_ID[dt.getDay()];
+          const dateTag = `${dt.getDate()} ${MONTH_SHORT_ID[dt.getMonth()]}`;
+          const cond = getStripWeatherCondition(d.total_rain, d.i_maks);
+          const isActive = (d.date === activeDate);
+          const tooltip = `${dayFull}, ${dt.getDate()} ${MONTH_FULL_ID[dt.getMonth()]} ${dt.getFullYear()} • ${d.total_rain.toFixed(1)} mm (${cond.label} • I-maks ${d.i_maks.toFixed(2)} mm/jam)`;
+
+          return `
+            <div class="day-strip-item ${isActive ? 'active' : ''}" role="button" tabindex="0" data-date="${d.date}" title="${tooltip}" onclick="selectDayFromStrip('${d.date}')">
+              <span class="day-strip-name">${dayShort}</span>
+              <span class="day-strip-date">${dateTag}</span>
+              <div class="day-strip-icon">${cond.svg}</div>
+              <span class="day-strip-val">${d.total_rain.toFixed(1)} mm</span>
+            </div>
+          `;
+        }).join('');
+        renderedStripDatesKey = newKey;
+      } else {
+        track.querySelectorAll('.day-strip-item').forEach(el => {
+          el.classList.toggle('active', el.dataset.date === activeDate);
+        });
+      }
+
+      const allDates = rawDataset.daily_summary.map(d => d.date);
+      if (btnPrev && btnNext) {
+        if (isDaily) {
+          const idx = allDates.indexOf(selectedDate);
+          btnPrev.disabled = (idx <= 0);
+          btnNext.disabled = (idx === -1 || idx >= allDates.length - 1);
+        } else {
+          btnPrev.disabled = allDates.length <= 1;
+          btnNext.disabled = allDates.length <= 1;
+        }
+      }
+
+      if (isDaily && activeDate && !options.skipScroll) {
+        scrollStripToDate(activeDate, !options.instantScroll);
+      }
+    }
+
+    function selectDayFromStrip(dateStr, options = {}) {
+      if (stripSuppressClick && !options.fromDrag) return;
+      if (!rawDataset || !dateStr) return;
+
+      currentFilterMode = 'daily';
+      selectedDate = dateStr;
+      const dateInput = document.getElementById('islandDateInput');
+      if (dateInput) dateInput.value = selectedDate;
+
+      syncFilterModeUI('daily');
+      updateChartDisplayButtons();
+      applyFilterAndRender(false, {
+        stripSkipScroll: Boolean(options.skipScroll),
+        stripInstantScroll: Boolean(options.instantScroll)
+      });
+    }
+
+    function shiftStripDay(delta) {
+      if (!rawDataset || !Array.isArray(rawDataset.daily_summary) || rawDataset.daily_summary.length === 0) return;
+      const allDates = rawDataset.daily_summary.map(d => d.date);
+      let nextIdx = 0;
+
+      if (currentFilterMode === 'daily') {
+        const curIdx = allDates.indexOf(selectedDate);
+        nextIdx = Math.max(0, Math.min(allDates.length - 1, (curIdx === -1 ? 0 : curIdx) + delta));
+      } else {
+        const stripDates = getStripDatesList(currentFilteredRecords, false);
+        const fallbackDate = stripDates.length > 0 ? stripDates[0].date : allDates[0];
+        const baseDate = stripDates.some(d => d.date === selectedDate) ? selectedDate : fallbackDate;
+        const curIdx = allDates.indexOf(baseDate);
+        nextIdx = Math.max(0, Math.min(allDates.length - 1, (curIdx === -1 ? 0 : curIdx) + delta));
+      }
+
+      selectDayFromStrip(allDates[nextIdx]);
+    }
+
+    function initDailyWeatherStripGestures() {
+      const track = document.getElementById('dailyWeatherStripTrack');
+      if (!track) return;
+
+      let pointerDown = false;
+      let startX = 0;
+      let startScroll = 0;
+      let movedPx = 0;
+
+      function commitCenteredStripCard() {
+        if (currentFilterMode !== 'daily') return;
+        if (Date.now() < stripProgrammaticUntil) return;
+
+        const items = track.querySelectorAll('.day-strip-item');
+        if (items.length === 0) return;
+
+        const trackRect = track.getBoundingClientRect();
+        const trackCenter = trackRect.left + trackRect.width / 2;
+        let closestDate = '';
+        let minDist = Infinity;
+
+        items.forEach(item => {
+          const r = item.getBoundingClientRect();
+          const itemCenter = r.left + r.width / 2;
+          const dist = Math.abs(itemCenter - trackCenter);
+          if (dist < minDist) {
+            minDist = dist;
+            closestDate = item.dataset.date;
+          }
+        });
+
+        if (closestDate && closestDate !== selectedDate) {
+          selectDayFromStrip(closestDate, { fromDrag: true, skipScroll: true });
+        }
+      }
+
+      function scheduleCenteredCommit(delayMs = 150) {
+        clearTimeout(stripScrollCommitTimer);
+        stripScrollCommitTimer = setTimeout(commitCenteredStripCard, delayMs);
+      }
+
+      track.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        pointerDown = true;
+        startX = e.pageX;
+        startScroll = track.scrollLeft;
+        movedPx = 0;
+        track.classList.add('dragging');
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!pointerDown) return;
+        const dx = e.pageX - startX;
+        movedPx = Math.max(movedPx, Math.abs(dx));
+        if (movedPx > 6) {
+          stripSuppressClick = true;
+        }
+        track.scrollLeft = startScroll - dx;
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (!pointerDown) return;
+        pointerDown = false;
+        track.classList.remove('dragging');
+        if (movedPx > 14) {
+          scheduleCenteredCommit(90);
+        }
+        setTimeout(() => { stripSuppressClick = false; }, 60);
+      });
+
+      track.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          startX = e.touches[0].pageX;
+          movedPx = 0;
+        }
+      }, { passive: true });
+
+      track.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) {
+          movedPx = Math.max(movedPx, Math.abs(e.touches[0].pageX - startX));
+        }
+      }, { passive: true });
+
+      track.addEventListener('touchend', () => {
+        if (movedPx > 14) {
+          scheduleCenteredCommit(180);
+        }
+      }, { passive: true });
+
+      track.addEventListener('scroll', () => {
+        if (pointerDown || Date.now() < stripProgrammaticUntil) return;
+        if (currentFilterMode === 'daily') {
+          scheduleCenteredCommit(160);
+        }
+      }, { passive: true });
+
+      track.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          shiftStripDay(-1);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          shiftStripDay(1);
+        } else if (e.key === 'Enter' || e.key === ' ') {
+          const item = e.target.closest('.day-strip-item');
+          if (item && item.dataset.date) {
+            e.preventDefault();
+            selectDayFromStrip(item.dataset.date);
+          }
+        }
+      });
+    }
 
     // BMKG Classification Criteria
     function getBMKGCategory(totalDailyMm) {
@@ -2009,6 +2522,8 @@
         return;
       }
 
+      renderedStripDatesKey = '';
+
       const saved = loadDashboardSession();
       const validModes = new Set(['daily', 'months', 'period']);
       const validDisplays = new Set(['hourly', 'accumulation']);
@@ -2092,6 +2607,11 @@
       
       const tbody = document.getElementById('lectureTableBody');
       tbody.innerHTML = '<tr><td colspan="5" style="padding: 24px; color: #94A3B8;">Tidak ada data. Silakan upload file .nc.</td></tr>';
+      const stripCard = document.getElementById('dailyWeatherStripCard');
+      const stripTrack = document.getElementById('dailyWeatherStripTrack');
+      if (stripCard) stripCard.style.display = 'none';
+      if (stripTrack) stripTrack.innerHTML = '';
+      renderedStripDatesKey = '';
       lucide.createIcons();
     }
 
@@ -2142,9 +2662,14 @@
       activeView = viewName;
       syncViewUI(viewName);
 
-      if (viewName === 'graph' && hyetoChartInstance) {
-        hyetoChartInstance.resize();
-        syncHyetoChartResponsiveStyle();
+      if (viewName === 'graph') {
+        if (currentFilterMode === 'daily' && selectedDate) {
+          scrollStripToDate(selectedDate, false);
+        }
+        if (hyetoChartInstance) {
+          hyetoChartInstance.resize();
+          syncHyetoChartResponsiveStyle();
+        }
       }
 
       // Tutup filter island saat berpindah & simpan sesi
@@ -2305,7 +2830,7 @@
     // ========================================================
     // FILTER PIPELINE & RENDERING
     // ========================================================
-    function applyFilterAndRender(preserveTableScope = false) {
+    function applyFilterAndRender(preserveTableScope = false, options = {}) {
       if (!rawDataset || !rawDataset.records) return;
 
       if (!preserveTableScope) {
@@ -2362,6 +2887,7 @@
       if (filteredRecords.length === 0) {
         currentFilteredRecords = [];
         document.getElementById('chartEmptyOverlay').classList.add('active');
+        renderDailyWeatherStrip([], isDaily, options);
         renderRightSidebarEmpty(periodLabel);
         currentTableData = [];
         const tbody = document.getElementById('lectureTableBody');
@@ -2376,6 +2902,10 @@
       currentIsDaily = isDaily;
 
       // 2. Render Sub-Components
+      renderDailyWeatherStrip(filteredRecords, isDaily, {
+        skipScroll: Boolean(options.stripSkipScroll),
+        instantScroll: Boolean(options.stripInstantScroll)
+      });
       renderRightSidebar(filteredRecords, periodLabel, isDaily);
       renderHyetoChart(filteredRecords, periodLabel, isDaily, isAnnualMonthly);
       renderLectureTable(filteredRecords, periodLabel, isDaily);
@@ -2774,6 +3304,42 @@
       lucide.createIcons();
     }
 
+    function appendLectureTableRows(rowsList, intensityDecimals = 1) {
+      const tbody = document.getElementById('lectureTableBody');
+      let totalRain = 0;
+      let totalDuration = 0;
+      let maxIntensity = 0;
+
+      const htmlParts = rowsList.map(row => {
+        totalRain += row.rain;
+        totalDuration += row.duration;
+        if (row.intensity > maxIntensity) maxIntensity = row.intensity;
+
+        currentTableData.push({
+          no: row.no,
+          time: row.time,
+          rain: row.rain,
+          duration: row.duration,
+          intensity: row.intensity,
+          isPeak: Boolean(row.isPeak)
+        });
+
+        const peakClass = row.isPeak ? 'peak-row' : '';
+        return `
+          <tr>
+            <td>${row.no}</td>
+            <td style="font-weight: 600;">${row.time}</td>
+            <td class="${peakClass}">${row.rain.toFixed(1).replace('.', ',')}</td>
+            <td>${row.duration.toFixed(1).replace('.', ',')}</td>
+            <td class="${peakClass}">${row.intensity.toFixed(intensityDecimals).replace('.', ',')}</td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = htmlParts.join('');
+      return { totalRain, totalDuration, maxIntensity };
+    }
+
     function renderLectureTable(records, periodLabel, isDaily) {
       const tbody = document.getElementById('lectureTableBody');
       tbody.innerHTML = '';
@@ -2781,62 +3347,48 @@
 
       const selectorWrap = document.getElementById('tableDaySelectorWrap');
       const selectEl = document.getElementById('tableDaySelect');
+      const thTimeEl = document.getElementById('thColTime');
+      const thIntensityEl = document.getElementById('thColIntensity');
+      const subtitleEl = document.getElementById('lectureSlideSubtitle');
 
-      let totalRain = 0;
-      let totalDuration = 0;
-      let maxIntensity = 0;
+      let summaryTotals = { totalRain: 0, totalDuration: 0, maxIntensity: 0 };
+      let footerIntensityDecimals = 1;
 
       if (isDaily) {
         selectorWrap.style.display = 'none';
-        document.getElementById('thColTime').innerText = 'Waktu (pukul)';
-        document.getElementById('lectureSlideSubtitle').innerText = `Format Standar Kuliah Teknik Hidrologi (${periodLabel})`;
+        thTimeEl.innerText = 'Waktu (pukul)';
+        if (thIntensityEl) thIntensityEl.innerText = 'Intensitas (mm/jam)';
+        subtitleEl.innerText = `Format Standar Kuliah Teknik Hidrologi (${periodLabel})`;
 
         const hourlyMap = {};
         records.forEach(r => hourlyMap[r.hour] = r.rain);
 
+        let maxHourVal = 0;
         let maxIdx = -1;
         for (let h = 0; h < 24; h++) {
           const r = hourlyMap[h] || 0.0;
-          if (r > maxIntensity) {
-            maxIntensity = r;
+          if (r > maxHourVal) {
+            maxHourVal = r;
             maxIdx = h;
           }
         }
 
-        const rowsHtml = [];
+        const rows = [];
         for (let h = 0; h < 24; h++) {
           const nextH = (h + 1) % 24;
-          const timeSlot = `${String(h).padStart(2,'0')} - ${String(nextH).padStart(2,'0')}`;
           const rainMm = hourlyMap[h] || 0.0;
           const duration = 1.0; // Selalu 1,0 jam sesuai rumus intensitas per jam
-          const intensity = rainMm / duration;
-          const isPeak = (h === maxIdx && maxIntensity >= 0.05);
-
-          totalRain += rainMm;
-          totalDuration += duration;
-
-          currentTableData.push({
+          rows.push({
             no: h + 1,
-            time: timeSlot,
+            time: `${String(h).padStart(2,'0')} - ${String(nextH).padStart(2,'0')}`,
             rain: rainMm,
             duration: duration,
-            intensity: intensity,
-            isPeak: isPeak
+            intensity: rainMm / duration,
+            isPeak: (h === maxIdx && maxHourVal >= 0.05)
           });
-
-          rowsHtml.push(`
-            <tr>
-              <td>${h + 1}</td>
-              <td style="font-weight: 600;">${timeSlot}</td>
-              <td class="${isPeak ? 'peak-row' : ''}">${rainMm.toFixed(1).replace('.', ',')}</td>
-              <td>${duration.toFixed(1).replace('.', ',')}</td>
-              <td class="${isPeak ? 'peak-row' : ''}">${intensity.toFixed(1).replace('.', ',')}</td>
-            </tr>
-          `);
         }
-        tbody.innerHTML = rowsHtml.join('');
+        summaryTotals = appendLectureTableRows(rows, 1);
       } else {
-        // Multi-day filter: Tetap gunakan format jam-jaman (Lamanya = 1,0 jam)
         selectorWrap.style.display = 'flex';
 
         const dailyStats = {};
@@ -2846,9 +3398,10 @@
 
         records.forEach(r => {
           if (!dailyStats[r.date]) {
-            dailyStats[r.date] = { date: r.date, sum: 0, maxI: 0 };
+            dailyStats[r.date] = { date: r.date, sum: 0, maxI: 0, hoursCount: 0 };
           }
           dailyStats[r.date].sum += r.rain;
+          dailyStats[r.date].hoursCount += 1;
           if (r.rain > dailyStats[r.date].maxI) {
             dailyStats[r.date].maxI = r.rain;
           }
@@ -2861,134 +3414,147 @@
           }
         });
 
-        // Build dropdown options dynamically
+        const sortedChronoDates = Object.keys(dailyStats).sort();
         const sortedRainDays = Object.values(dailyStats)
           .filter(d => d.sum >= 0.05)
           .sort((a, b) => b.sum - a.sum)
           .slice(0, 40);
 
         let optsHtml = `<option value="peak">⚡ Hari Puncak I-maks: ${maxPeriodHourDate} (${maxPeriodHourI.toFixed(1)} mm/jam)</option>`;
+        optsHtml += `<option value="daily_summary">📆 Semua Tanggal (Rekap Harian: ${sortedChronoDates.length} hari)</option>`;
         optsHtml += `<option value="all_active">📋 Semua Jam Hujan Aktif (${activeRainRecords.length} jam)</option>`;
         sortedRainDays.forEach(d => {
           optsHtml += `<option value="${d.date}">📅 ${d.date} (Total ${d.sum.toFixed(1)} mm • Maks ${d.maxI.toFixed(1)})</option>`;
         });
 
         selectEl.innerHTML = optsHtml;
-        if (['peak', 'all_active'].includes(tableSelectedScope) || dailyStats[tableSelectedScope]) {
+        if (['peak', 'daily_summary', 'all_active'].includes(tableSelectedScope) || dailyStats[tableSelectedScope]) {
           selectEl.value = tableSelectedScope;
         } else {
           tableSelectedScope = 'peak';
           selectEl.value = 'peak';
         }
 
-        if (tableSelectedScope === 'all_active') {
-          document.getElementById('thColTime').innerText = 'Waktu (WIB)';
-          document.getElementById('lectureSlideSubtitle').innerText = `Perhitungan Intensitas Hujan Tiap Jam Aktif (Periode: ${periodLabel})`;
+        if (tableSelectedScope === 'daily_summary') {
+          thTimeEl.innerText = 'Tanggal (WIB)';
+          if (thIntensityEl) thIntensityEl.innerText = 'Rata-rata (mm/jam)';
+          subtitleEl.innerText = `Rekap Harian Semua Tanggal (${sortedChronoDates[0]} s.d. ${sortedChronoDates[sortedChronoDates.length - 1]} • ${periodLabel})`;
+          footerIntensityDecimals = 2;
+
+          let maxDayRain = 0;
+          sortedChronoDates.forEach(d => {
+            if (dailyStats[d].sum > maxDayRain) maxDayRain = dailyStats[d].sum;
+          });
+
+          const rows = sortedChronoDates.map((d, idx) => {
+            const stat = dailyStats[d];
+            const durationHrs = stat.hoursCount > 0 ? stat.hoursCount : 24.0;
+            const avgIntensity = durationHrs > 0 ? (stat.sum / durationHrs) : 0.0;
+            return {
+              no: idx + 1,
+              time: d,
+              rain: stat.sum,
+              duration: durationHrs,
+              intensity: avgIntensity,
+              isPeak: (stat.sum === maxDayRain && maxDayRain >= 0.05)
+            };
+          });
+          summaryTotals = appendLectureTableRows(rows, 2);
+        } else if (tableSelectedScope === 'all_active') {
+          thTimeEl.innerText = 'Waktu (WIB)';
+          if (thIntensityEl) thIntensityEl.innerText = 'Intensitas (mm/jam)';
+          subtitleEl.innerText = `Perhitungan Intensitas Hujan Tiap Jam Aktif (Periode: ${periodLabel})`;
 
           const rowsToShow = activeRainRecords.length > 0 ? activeRainRecords : records.slice(0, 24);
+          let maxActiveRain = 0;
           rowsToShow.forEach(r => {
-            if (r.rain > maxIntensity) maxIntensity = r.rain;
+            if (r.rain > maxActiveRain) maxActiveRain = r.rain;
           });
 
-          const rowsHtml = [];
-          rowsToShow.forEach((r, idx) => {
+          const rows = rowsToShow.map((r, idx) => {
             const nextH = (r.hour + 1) % 24;
-            const timeSlot = `${r.date} (${String(r.hour).padStart(2,'0')} - ${String(nextH).padStart(2,'0')})`;
-            const rainMm = r.rain;
             const duration = 1.0; // Selalu 1,0 jam
-            const intensity = rainMm / duration;
-            const isPeak = (rainMm === maxIntensity && maxIntensity >= 0.05);
-
-            totalRain += rainMm;
-            totalDuration += duration;
-
-            currentTableData.push({
+            return {
               no: idx + 1,
-              time: timeSlot,
-              rain: rainMm,
+              time: `${r.date} (${String(r.hour).padStart(2,'0')} - ${String(nextH).padStart(2,'0')})`,
+              rain: r.rain,
               duration: duration,
-              intensity: intensity,
-              isPeak: isPeak
-            });
-
-            rowsHtml.push(`
-              <tr>
-                <td>${idx + 1}</td>
-                <td style="font-weight: 600;">${timeSlot}</td>
-                <td class="${isPeak ? 'peak-row' : ''}">${rainMm.toFixed(1).replace('.', ',')}</td>
-                <td>${duration.toFixed(1).replace('.', ',')}</td>
-                <td class="${isPeak ? 'peak-row' : ''}">${intensity.toFixed(1).replace('.', ',')}</td>
-              </tr>
-            `);
+              intensity: r.rain / duration,
+              isPeak: (r.rain === maxActiveRain && maxActiveRain >= 0.05)
+            };
           });
-          tbody.innerHTML = rowsHtml.join('');
+          summaryTotals = appendLectureTableRows(rows, 1);
         } else {
           // Hari Puncak atau Tanggal Spesifik (24 Jam, Lamanya = 1,0)
           const targetDate = (tableSelectedScope === 'peak') ? maxPeriodHourDate : tableSelectedScope;
           const dayRecords = records.filter(r => r.date === targetDate);
 
-          document.getElementById('thColTime').innerText = 'Waktu (pukul)';
-          document.getElementById('lectureSlideSubtitle').innerText = `Perhitungan Intensitas Per Jam — Tanggal ${targetDate} (Periode: ${periodLabel})`;
+          thTimeEl.innerText = 'Waktu (pukul)';
+          if (thIntensityEl) thIntensityEl.innerText = 'Intensitas (mm/jam)';
+          subtitleEl.innerText = `Perhitungan Intensitas Per Jam — Tanggal ${targetDate} (Periode: ${periodLabel})`;
 
           const hourlyMap = {};
           dayRecords.forEach(r => hourlyMap[r.hour] = r.rain);
 
+          let maxHourVal = 0;
           let maxIdx = -1;
           for (let h = 0; h < 24; h++) {
             const r = hourlyMap[h] || 0.0;
-            if (r > maxIntensity) {
-              maxIntensity = r;
+            if (r > maxHourVal) {
+              maxHourVal = r;
               maxIdx = h;
             }
           }
 
-          const rowsHtml = [];
+          const rows = [];
           for (let h = 0; h < 24; h++) {
             const nextH = (h + 1) % 24;
-            const timeSlot = `${String(h).padStart(2,'0')} - ${String(nextH).padStart(2,'0')}`;
             const rainMm = hourlyMap[h] || 0.0;
             const duration = 1.0; // Selalu 1,0 jam
-            const intensity = rainMm / duration;
-            const isPeak = (h === maxIdx && maxIntensity >= 0.05);
-
-            totalRain += rainMm;
-            totalDuration += duration;
-
-            currentTableData.push({
+            rows.push({
               no: h + 1,
-              time: timeSlot,
+              time: `${String(h).padStart(2,'0')} - ${String(nextH).padStart(2,'0')}`,
               rain: rainMm,
               duration: duration,
-              intensity: intensity,
-              isPeak: isPeak
+              intensity: rainMm / duration,
+              isPeak: (h === maxIdx && maxHourVal >= 0.05)
             });
-
-            rowsHtml.push(`
-              <tr>
-                <td>${h + 1}</td>
-                <td style="font-weight: 600;">${timeSlot}</td>
-                <td class="${isPeak ? 'peak-row' : ''}">${rainMm.toFixed(1).replace('.', ',')}</td>
-                <td>${duration.toFixed(1).replace('.', ',')}</td>
-                <td class="${isPeak ? 'peak-row' : ''}">${intensity.toFixed(1).replace('.', ',')}</td>
-              </tr>
-            `);
           }
-          tbody.innerHTML = rowsHtml.join('');
+          summaryTotals = appendLectureTableRows(rows, 1);
         }
       }
 
-      // Update Footer (Sinkron 100% dengan baris tabel & I-maks)
-      document.getElementById('footTotalRainfall').innerText = `${totalRain.toFixed(1).replace('.', ',')} mm`;
-      document.getElementById('footDuration').innerText = `${totalDuration.toFixed(1).replace('.', ',')} jam`;
-      document.getElementById('footMaxIntensity').innerText = `${maxIntensity.toFixed(1).replace('.', ',')} mm/jam`;
+      // Update Footer (Sinkron 100% dengan baris tabel & I-maks / Rata-rata)
+      document.getElementById('footTotalRainfall').innerText = `${summaryTotals.totalRain.toFixed(1).replace('.', ',')} mm`;
+      document.getElementById('footDuration').innerText = `${summaryTotals.totalDuration.toFixed(1).replace('.', ',')} jam`;
+      document.getElementById('footMaxIntensity').innerText = `${summaryTotals.maxIntensity.toFixed(footerIntensityDecimals).replace('.', ',')} mm/jam`;
     }
 
     // ========================================================
     // UNDUH CSV & EXCEL SESUAI FILTER
     // ========================================================
+    function getExportFileTag() {
+      if (currentIsDaily) return selectedDate || 'harian';
+      if (currentFilterMode === 'months') {
+        const list = Array.from(selectedMonths).sort();
+        return list.length === 1 ? list[0] : `${list.length}bulan`;
+      }
+      return selectedPeriodPreset || 'periode';
+    }
+
     function downloadCurrentCSV(fromSidebar = false) {
+      const useFilteredHourly = (
+        fromSidebar &&
+        activeView === 'graph' &&
+        !currentIsDaily &&
+        tableSelectedScope !== 'daily_summary' &&
+        currentFilteredRecords.length > 0
+      );
+
       let exportData = currentTableData;
-      if (fromSidebar && activeView === 'graph' && !currentIsDaily && currentFilteredRecords.length > 0) {
+      const isDailySummaryExport = !useFilteredHourly && !currentIsDaily && tableSelectedScope === 'daily_summary';
+
+      if (useFilteredHourly) {
         exportData = currentFilteredRecords.map((r, idx) => {
           const nextH = (r.hour + 1) % 24;
           return {
@@ -3006,7 +3572,10 @@
         return;
       }
 
-      let csv = "No,Waktu_WIB,Tinggi_Hujan_mm,Lamanya_jam,Intensitas_mm_jam\n";
+      let csv = isDailySummaryExport
+        ? "No,Tanggal_WIB,Total_Hujan_mm,Lamanya_jam,Rata_rata_mm_jam\n"
+        : "No,Waktu_WIB,Tinggi_Hujan_mm,Lamanya_jam,Intensitas_mm_jam\n";
+
       let totalRain = 0;
       let totalDuration = 0;
       let maxI = 0;
@@ -3024,7 +3593,8 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `tabel_hidrologi_semarang_${currentFilterMode}_${selectedDate || 'periode'}.csv`;
+      const prefix = isDailySummaryExport ? 'rekap_harian_semarang' : 'tabel_hidrologi_semarang';
+      a.download = `${prefix}_${currentFilterMode}_${getExportFileTag()}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -3038,6 +3608,11 @@
         return;
       }
 
+      const isDailySummary = (!currentIsDaily && tableSelectedScope === 'daily_summary');
+      const timeHeader = document.getElementById('thColTime')?.innerText || 'Waktu (pukul)';
+      const intensityHeader = document.getElementById('thColIntensity')?.innerText || 'Intensitas (mm/jam)';
+      const intensityDecimals = isDailySummary ? 2 : 1;
+
       let tableHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
       <head><meta charset="utf-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Tabel Hidrologi Semarang</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
       <body>
@@ -3045,15 +3620,16 @@
         <thead>
           <tr style="background:#2563EB; color:#FFFFFF; font-weight:bold;">
             <th>No.</th>
-            <th>Waktu (pukul)</th>
+            <th>${timeHeader}</th>
             <th>Tinggi hujan (mm)</th>
             <th>Lamanya (jam)</th>
-            <th>Intensitas (mm/jam)</th>
+            <th>${intensityHeader}</th>
           </tr>
         </thead>
         <tbody>`;
 
       let totalRain = 0;
+      let totalDuration = 0;
       let maxI = 0;
 
       currentTableData.forEach(r => {
@@ -3062,17 +3638,18 @@
           <td>${r.time}</td>
           <td>${r.rain.toFixed(1).replace('.', ',')}</td>
           <td>${r.duration.toFixed(1).replace('.', ',')}</td>
-          <td>${r.intensity.toFixed(1).replace('.', ',')}</td>
+          <td>${r.intensity.toFixed(intensityDecimals).replace('.', ',')}</td>
         </tr>`;
         totalRain += r.rain;
+        totalDuration += r.duration;
         if (r.intensity > maxI) maxI = r.intensity;
       });
 
       tableHtml += `<tr style="background:#F1F5F9; font-weight:bold;">
-        <td colspan="2">TOTAL &amp; I-MAKS</td>
+        <td colspan="2">TOTAL &amp; MAKS</td>
         <td>${totalRain.toFixed(1).replace('.', ',')}</td>
-        <td>-</td>
-        <td>${maxI.toFixed(1).replace('.', ',')}</td>
+        <td>${totalDuration.toFixed(1).replace('.', ',')}</td>
+        <td>${maxI.toFixed(intensityDecimals).replace('.', ',')}</td>
       </tr>
       </tbody></table></body></html>`;
 
@@ -3080,7 +3657,8 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `tabel_hidrologi_semarang_${currentFilterMode}_${selectedDate || 'periode'}.xls`;
+      const prefix = isDailySummary ? 'rekap_harian_semarang' : 'tabel_hidrologi_semarang';
+      a.download = `${prefix}_${currentFilterMode}_${getExportFileTag()}.xls`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -3187,6 +3765,7 @@
     // ========================================================
     window.addEventListener('DOMContentLoaded', () => {
       initDashboardData();
+      initDailyWeatherStripGestures();
 
       // Klik di luar island menutup filter island secara otomatis (Gambar 2)
       const island = document.getElementById('filterIsland');
@@ -3222,6 +3801,9 @@
           const islandEl = document.getElementById('filterIsland');
           if (islandEl && islandEl.classList.contains('show')) {
             positionFilterIsland();
+          }
+          if (currentFilterMode === 'daily' && selectedDate) {
+            scrollStripToDate(selectedDate, false);
           }
           syncHyetoChartResponsiveStyle();
         }, 120);
